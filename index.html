@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>世界盃球星 MBTI 靈魂共鳴測試</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0f172a;
+            color: #1e293b;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .bg-fixed-image {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: url('https://raw.githubusercontent.com/shanezzz1031/img/refs/heads/main/worldcup-082.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: rgba(15, 23, 42, 0.85);
+        }
+
+        .main-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #ffffff;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            display: block;
+        }
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            color: #1e40af;
+        }
+
+        .star-img-wrapper {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .star-img {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center top;
+        }
+
+        #save-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lang-btn {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: #2563eb; color: white; }
+        .lang-btn.inactive { background: #f1f5f9; color: #94a3b8; }
+
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-fixed-image"></div>
+    <div class="bg-overlay"></div>
+
+    <div id="save-overlay">
+        <img id="preview-img" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl mb-4 border-2 border-white">
+        <p class="text-white font-bold mb-4 text-center" id="save-hint"></p>
+        <button onclick="closePreview()" class="px-8 py-3 bg-white text-blue-600 font-bold rounded-full" id="btn-close-preview"></button>
+    </div>
+
+    <div class="main-container flex flex-col">
+        
+        <!-- 語言切換列 -->
+        <div class="p-4 flex justify-end gap-2 bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-slate-100">
+            <button onclick="changeLang('zh-Hant')" id="lang-hant" class="lang-btn active">繁中</button>
+            <button onclick="changeLang('zh-Hans')" id="lang-hans" class="lang-btn inactive">简中</button>
+            <button onclick="changeLang('en')" id="lang-en" class="lang-btn inactive">EN</button>
+        </div>
+
+        <!-- 首頁 -->
+        <div id="screen-home" class="flex-grow flex flex-col items-center justify-center p-10 text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-8 rotate-3">
+                <span class="text-4xl text-white">⚽</span>
+            </div>
+            <h1 id="home-title" class="text-3xl font-black text-slate-900 mb-6 leading-tight"></h1>
+            <p id="home-desc" class="text-slate-500 mb-10 leading-relaxed text-sm"></p>
+            <button onclick="startQuiz()" id="home-start-btn" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 transition-all"></button>
+        </div>
+
+        <!-- 答題頁 -->
+        <div id="screen-quiz" class="hidden flex-grow flex flex-col p-8">
+            <div class="mb-8">
+                <div class="flex justify-between items-end mb-2">
+                    <span id="quiz-progress-text" class="text-2xl font-black italic text-blue-600"></span>
+                </div>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="h-full bg-blue-600 transition-all duration-300 w-0"></div>
+                </div>
+            </div>
+            <h2 id="quiz-q-text" class="text-xl font-bold text-slate-800 mb-8 leading-snug min-h-[3em]"></h2>
+            <div id="quiz-options" class="space-y-3 flex-grow"></div>
+            <div class="flex gap-4 mt-8">
+                <button id="btn-back" onclick="goBack()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-xl"></button>
+            </div>
+        </div>
+
+        <!-- 結果頁 -->
+        <div id="screen-result" class="hidden flex flex-col">
+            <div id="capture-area" class="bg-white p-8">
+                <div class="text-center mb-6">
+                    <span id="res-mbti" class="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-black tracking-widest mb-2 uppercase"></span>
+                    <h2 id="res-title" class="text-4xl font-black text-slate-900 mb-1"></h2>
+                    <p id="res-role" class="text-blue-600 font-bold text-sm tracking-wide"></p>
+                </div>
+
+                <div class="star-img-wrapper mb-6 shadow-xl">
+                    <div id="res-img" class="star-img"></div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                            <span class="w-1.5 h-5 bg-blue-600 rounded-full"></span> <span id="label-why"></span>
+                        </h3>
+                        <p id="res-why" class="mt-3 text-slate-600 leading-relaxed text-md"></p>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border-l-4 border-slate-900">
+                        <h3 class="font-black text-slate-900 mb-3 text-md">💡 <span id="label-traits"></span></h3>
+                        <p id="res-traits" class="text-slate-600 leading-relaxed whitespace-pre-wrap text-sm text-justify"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-blue-50">
+                            <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase" id="label-pos"></p>
+                            <p id="res-pos" class="font-black text-blue-900 text-xs"></p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-blue-50">
+                            <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase" id="label-val"></p>
+                            <p id="res-val" class="font-black text-blue-900 text-xs"></p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-slate-900 text-white italic text-center text-xs leading-relaxed">
+                        「<span id="res-advice"></span>」
+                    </div>
+                </div>
+                
+                <div class="mt-10 pt-6 border-t border-slate-100 text-center">
+                    <p class="text-slate-300 text-[10px] font-bold tracking-widest uppercase">Football Soul Profile · 2024 Edition</p>
+                </div>
+            </div>
+
+            <div class="p-8 pt-0 space-y-3">
+                <button onclick="saveResult(event)" id="btn-save" class="w-full py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg"></button>
+                <button onclick="resetQuiz()" id="btn-restart" class="w-full py-3 text-slate-400 font-bold text-xs"></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentLang = 'zh-Hant';
+
+        const i18n = {
+            'zh-Hant': {
+                homeTitle: "球星靈魂共鳴<br>MBTI 深度解析",
+                homeDesc: "這不只是一個測試，這是一場關於天賦、性格與命運的綠茵對話。探尋隱藏在你球風背後的靈魂原型。",
+                homeStart: "開啟靈魂檢索",
+                back: "上一題",
+                finish: "查看結果",
+                labelWhy: "為什麼是你？",
+                labelTraits: "人格深度特質",
+                labelPos: "場上直覺",
+                labelVal: "生命格言",
+                btnSave: "生成分享長圖",
+                btnRestart: "重新探索自我",
+                saveHint: "長按圖片保存解析結果<br><span class='text-sm font-normal opacity-70'>或手動截圖分享</span>",
+                btnClose: "返回修改",
+                generating: "生成中..."
+            },
+            'zh-Hans': {
+                homeTitle: "球星灵魂共鸣<br>MBTI 深度解析",
+                homeDesc: "这不仅是一个测试，这是一场关于天赋、性格与命运的绿茵对话。探寻隐藏在你球风背后的灵魂原型。",
+                homeStart: "开启灵魂检索",
+                back: "上一题",
+                finish: "查看结果",
+                labelWhy: "为什么是你？",
+                labelTraits: "人格深度特质",
+                labelPos: "场上直觉",
+                labelVal: "生命格言",
+                btnSave: "生成分享长图",
+                btnRestart: "重新探索自我",
+                saveHint: "长按图片保存解析结果<br><span class='text-sm font-normal opacity-70'>或手动截图分享</span>",
+                btnClose: "返回修改",
+                generating: "生成中..."
+            },
+            'en': {
+                homeTitle: "Star Soul Resonance<br>MBTI Deep Analysis",
+                homeDesc: "More than a test, it's a pitch-side dialogue about talent and destiny. Find the soul archetype behind your playstyle.",
+                homeStart: "Start Analysis",
+                back: "Back",
+                finish: "View Result",
+                labelWhy: "Why You?",
+                labelTraits: "Deep Personality Traits",
+                labelPos: "Pitch Intuition",
+                labelVal: "Life Motto",
+                btnSave: "Share Result Image",
+                btnRestart: "Restart Test",
+                saveHint: "Long press image to save<br><span class='text-sm font-normal opacity-70'>or take a screenshot</span>",
+                btnClose: "Edit",
+                generating: "Generating..."
+            }
+        };
+
+        const questions = [
+            {
+                q: { "zh-Hant": "比賽最後 10 分鐘落後一球，身為核心的你？", "zh-Hans": "比赛最后 10 分钟落后一球，身为核心的你？", "en": "Down by one with 10 mins left. As the core player, you:" },
+                options: {
+                    "zh-Hant": ["大聲激勵隊友全軍壓上", "冷靜觀察防線最薄弱的裂縫", "用感性與信念穩定大家的慌亂", "用一個不可思議的個人動作改寫局勢"],
+                    "zh-Hans": ["大声激励队友全军压上", "冷静观察防线最薄弱的裂缝", "用感性与信念稳定大家的慌乱", "用一个不可思议的个人动作改写局势"],
+                    "en": ["Shout to inspire total attack", "Calmly spot the weakest crack in defense", "Stabilize panic with emotion and faith", "Change the game with an incredible solo move"]
+                },
+                weight: ["E", "T", "F", "N"]
+            },
+            {
+                q: { "zh-Hant": "你如何定義足球場上的「成功」？", "zh-Hans": "你如何定义足球场上的“成功”？", "en": "How do you define 'Success' on the pitch?" },
+                options: {
+                    "zh-Hant": ["捧起獎盃的絕對勝負", "踢出極致優雅的藝術足球", "團隊之間完美的化學反應", "不斷超越前一秒自我的極限"],
+                    "zh-Hans": ["捧起奖杯的绝对胜负", "踢出极致优雅的艺术足球", "团队之间完美的化学反应", "不断超越前一秒自我的极限"],
+                    "en": ["The absolute victory of lifting trophies", "Playing with ultimate artistic elegance", "Perfect chemistry within the team", "Surpassing your own limits every second"]
+                },
+                weight: ["T", "N", "F", "S"]
+            },
+            {
+                q: { "zh-Hant": "賽後的休息室裡，你通常傾向於？", "zh-Hans": "赛后的休息室里，你通常倾向于？", "en": "In the locker room after a game, you tend to:" },
+                options: {
+                    "zh-Hant": ["跟每個人擊掌並討論進球", "獨自坐著回想剛才的失誤細節", "關注情緒低落隊友的心情", "已經在規劃下一場的戰術對手"],
+                    "zh-Hans": ["跟每个人击掌并讨论进球", "独自坐着回想刚才的失误细节", "关注情绪低落队友的心情", "已经在规划下一场的战术对手"],
+                    "en": ["High-five everyone and discuss goals", "Sit alone reflecting on missed details", "Check on teammates feeling down", "Already planning for the next opponent"]
+                },
+                weight: ["E", "I", "F", "J"]
+            },
+            {
+                q: { "zh-Hant": "面對媒體的挑釁式批評，你會？", "zh-Hans": "面对媒体的挑衅式批评，你会？", "en": "Facing provocative media criticism, you:" },
+                options: {
+                    "zh-Hant": ["直接正面回應，絕不退讓", "用冷靜的數據與事實讓其沈默", "感到受傷，但選擇內化並沈澱", "幽默化解，讓對方顯得自討沒趣"],
+                    "zh-Hans": ["直接正面回应，绝不退让", "用冷静的数据与事实让其沉默", "感到受伤，但选择内化并沉淀", "幽默化解，让对方显得自讨没趣"],
+                    "en": ["Reply directly and never back down", "Silence them with cold facts and data", "Feel hurt but internalize it privately", "Laugh it off and make them look silly"]
+                },
+                weight: ["E", "T", "I", "P"]
+            },
+            {
+                q: { "zh-Hant": "你認為「天賦」與「努力」的關係是？", "zh-Hans": "你认为“天赋”与“努力”的关系是？", "en": "How do you see 'Talent' vs 'Hard Work'?" },
+                options: {
+                    "zh-Hant": ["努力是天賦的門檻", "天賦只是未被開發的直覺", "努力是為了不負上帝給的天賦", "只要夠自律，就能創造天賦"],
+                    "zh-Hans": ["努力是天赋的门槛", "天赋只是未被开发的直觉", "努力是为了不负上帝给的天赋", "只要够自律，就能创造天赋"],
+                    "en": ["Hard work is the entry for talent", "Talent is just undeveloped intuition", "Work hard to honor God-given talent", "Total discipline can create talent"]
+                },
+                weight: ["S", "N", "F", "J"]
+            },
+            {
+                q: { "zh-Hant": "若有一球必進的機會，但傳球能讓隊友得分，你會？", "zh-Hans": "若有一球必进的机会，但传球能让队友得分，你会？", "en": "A clear chance to score, but a pass helps a teammate score. You:" },
+                options: {
+                    "zh-Hant": ["果斷射門，殺手本色", "觀察誰的位置成功率更高", "傳球給需要信心的隊友", "完全看當下的本能反應"],
+                    "zh-Hans": ["果断射门，杀手本色", "观察谁的位置成功率更高", "传球给需要信心的队友", "完全看当下的本能反应"],
+                    "en": ["Shoot decisively; killer instinct", "Check who has the higher success rate", "Pass to a teammate needing confidence", "Follow pure split-second instinct"]
+                },
+                weight: ["T", "J", "F", "P"]
+            },
+            {
+                q: { "zh-Hant": "你的球風最接近以下哪種特質？", "zh-Hans": "你的球风最接近以下哪种特质？", "en": "Which best describes your playstyle?" },
+                options: {
+                    "zh-Hant": ["像機器般精密運行的效率", "像風一樣不可預測的靈感", "像大海般包容全局的深邃", "像雷電般瞬間割裂防線的暴力"],
+                    "zh-Hans": ["像机器般精密运行的效率", "像风一样不可预测的灵感", "像大海般包容全局的深邃", "像雷电般瞬间割裂防线的暴力"],
+                    "en": ["Machine-like efficiency", "Wind-like unpredictable inspiration", "Ocean-like deep vision", "Lightning-like explosive power"]
+                },
+                weight: ["S", "N", "I", "E"]
+            },
+            {
+                q: { "zh-Hant": "面對對手的「垃圾話」挑釁，你的心理狀態？", "zh-Hans": "面对对手的“垃圾话”挑衅，你的心理状态？", "en": "Your reaction to opponent's 'trash talk'?" },
+                options: {
+                    "zh-Hant": ["憤怒爆發，絕不吃虧", "心如止水，甚至覺得好笑", "感到被冒犯，並試圖感化對方", "將其視為比賽的一種博弈"],
+                    "zh-Hans": ["愤怒爆发，绝不吃亏", "心如止水，甚至觉得好笑", "感到被冒犯，并试图感化对方", "将其视为比赛的一种博弈"],
+                    "en": ["Explosive anger; take no crap", "Calm as water; find it amusing", "Feel offended; wish they were better", "See it as just another mental game"]
+                },
+                weight: ["E", "T", "F", "N"]
+            },
+            {
+                q: { "zh-Hant": "在漫長的休賽季，你最理想的放鬆方式？", "zh-Hans": "在漫长的休赛季，你最理想的放松方式？", "en": "Ideal way to relax during long off-season?" },
+                options: {
+                    "zh-Hant": ["規律訓練，維持身體機能", "去未知的城市體驗冒險", "陪伴家人，享受平凡溫馨", "舉辦奢華派對慶祝賽季"],
+                    "zh-Hans": ["规律训练，维持身体机能", "去未知的城市体验冒险", "陪伴家人，享受平凡温馨", "举办奢華派对庆祝赛季"],
+                    "en": ["Regular training to keep shape", "Travel for an adventurous mission", "Stay home with family", "Host a lavish party to celebrate"]
+                },
+                weight: ["J", "N", "I", "E"]
+            },
+            {
+                q: { "zh-Hant": "當教練要求你踢一個完全陌生的位置時？", "zh-Hans": "当教练要求你踢一个完全陌生的位置时？", "en": "When asked to play a totally new position:" },
+                options: {
+                    "zh-Hant": ["服從權威，並做到最好", "提出戰術質疑與邏輯探討", "擔心表現不好會拖累大家", "這是一個展現全能的好機會"],
+                    "zh-Hans": ["服从权威，并做到最好", "提出战术质疑与逻辑探讨", "担心表现不好会拖累大家", "这是一个展现全能的好机会"],
+                    "en": ["Obey and do your absolute best", "Question and discuss the logic", "Worry about letting the team down", "See it as a chance to show versatility"]
+                },
+                weight: ["S", "T", "F", "E"]
+            },
+            {
+                q: { "zh-Hant": "你認為一場比賽中，運氣佔了多少比例？", "zh-Hans": "你认为一场比赛中，运气占了多少比例？", "en": "How much does 'Luck' matter in a game?" },
+                options: {
+                    "zh-Hant": ["運氣是強者的謙辭", "足球本就是機率與混沌", "運氣是給那些有信念的人", "沒人在乎，贏了就是運氣"],
+                    "zh-Hans": ["运气是强者的谦辞", "足球本就是概率与混沌", "运气是给那些有信念的人", "没人在乎，赢了就是运气"],
+                    "en": ["Luck is a strong man's humble lie", "Football is chaos and probability", "Luck favors those with faith", "Doesn't matter; winning is luck enough"]
+                },
+                weight: ["T", "P", "F", "E"]
+            },
+            {
+                q: { "zh-Hant": "你如何排解失冠後的巨大失落？", "zh-Hans": "你如何排解失冠后的巨大失落？", "en": "How do you handle the loss of a trophy?" },
+                options: {
+                    "zh-Hant": ["立刻開始更高強度的訓練", "反思戰術與系統性的失敗", "與最親近的朋友傾訴痛哭", "乾脆消失一段時間去旅行"],
+                    "zh-Hans": ["立刻开始更高强度的训练", "反思战术与系统性的失败", "与最亲近的朋友倾訴痛哭", "干脆消失一段时间去旅行"],
+                    "en": ["Start even harder training immediately", "Reflect on tactical/systemic failure", "Cry and talk it out with close friends", "Disappear for a while on a trip"]
+                },
+                weight: ["S", "T", "F", "P"]
+            },
+            {
+                q: { "zh-Hant": "如果有人惡意鏟球讓你受傷，重返賽場後？", "zh-Hans": "如果有人恶意铲球让你受伤，重返赛场后？", "en": "After a malicious tackle injures you, you return:" },
+                options: {
+                    "zh-Hant": ["尋找機會以牙還牙", "保持冷靜，用進球報復", "寬恕對方，這就是足球", "變得更謹慎與狡黠"],
+                    "zh-Hans": ["寻找机会以牙还牙", "保持冷静，用进球报复", "宽恕对方，这就是足球", "变得更谨慎与狡黠"],
+                    "en": ["Look for a chance to pay them back", "Stay calm; let goals be the revenge", "Forgive them; that's just football", "Become more cautious and clever"]
+                },
+                weight: ["E", "T", "F", "I"]
+            },
+            {
+                q: { "zh-Hant": "你在社交媒體上最常展現的一面是？", "zh-Hans": "你在社交媒体上最常展现的一面是？", "en": "Your most frequent post on social media?" },
+                options: {
+                    "zh-Hant": ["訓練與比賽的專業汗水", "搞怪、時尚與豐富的生活", "家庭與溫暖的日常生活", "深度且富有哲理的語錄"],
+                    "zh-Hans": ["训练与比赛的专业汗水", "搞怪、时尚与丰富的生活", "家庭与温暖的日常生活", "深度且富有哲理的语录"],
+                    "en": ["Professional training and game shots", "Funny, trendy, or stylish life", "Warm family and daily moments", "Deep and philosophical quotes"]
+                },
+                weight: ["S", "E", "F", "N"]
+            },
+            {
+                q: { "zh-Hant": "隊友在場上爭吵時，你會？", "zh-Hans": "队友在场上争吵时，你会？", "en": "When teammates argue on the pitch, you:" },
+                options: {
+                    "zh-Hant": ["嚴厲喝止，要求專注比賽", "分析對錯，給出理性判斷", "充當和事佬，安撫雙方", "乾脆無視，專注踢好自己的"],
+                    "zh-Hans": ["严厉喝止，要求专注比赛", "分析对错，给出理性判断", "充当和事佬，安抚双方", "干脆忽视，专注踢好自己的"],
+                    "en": ["Shut them down; focus on the game", "Analyze who's right and judge fairly", "Act as a peacemaker and soothe both", "Ignore it and just play your part"]
+                },
+                weight: ["J", "T", "F", "P"]
+            },
+            {
+                q: { "zh-Hant": "如果你是主教練，你最看重球員的？", "zh-Hans": "如果你是主教练，你最看重球员的？", "en": "As a manager, you value a player's:" },
+                options: {
+                    "zh-Hant": ["絕對的服從與紀律", "創造力與解決問題的能力", "對團隊的愛與犧牲精神", "在關鍵時刻的冷血特質"],
+                    "zh-Hans": ["绝对的服从与纪律", "创造力与解决问题的能力", "对团队的爱与牺牲精神", "在关键时刻的冷血特質"],
+                    "en": ["Absolute obedience and discipline", "Creativity and problem-solving", "Love for team and sacrifice", "Cold-bloodedness in key moments"]
+                },
+                weight: ["S", "N", "F", "T"]
+            },
+            {
+                q: { "zh-Hant": "你更希望如何結束你的職業生涯？", "zh-Hans": "你更希望如何结束你的职业生涯？", "en": "How do you want your career to end?" },
+                options: {
+                    "zh-Hant": ["在巔峰時期華麗謝幕", "為摯愛的母隊效力到最後", "在全新的聯賽繼續冒險", "將經驗傳承給下一代天才"],
+                    "zh-Hans": ["在巅峰时期华丽谢幕", "为挚爱的母队效力到最后", "在全新的联赛继续冒险", "将经验传承给下一代天才"],
+                    "en": ["Grand finale at your peak", "Playing for your beloved club till end", "Starting adventures in new leagues", "Passing experience to the next gen"]
+                },
+                weight: ["E", "I", "N", "F"]
+            },
+            {
+                q: { "zh-Hant": "在一個萬人體育場裡，你最享受的是？", "zh-Hans": "在一个万人体育场里，你最享受的是？", "en": "In a stadium of thousands, you enjoy:" },
+                options: {
+                    "zh-Hant": ["山呼海嘯般的個人崇拜聲", "純粹的競技對抗快感", "與隊友共同戰鬥的歸屬感", "看穿對手防線時的智力高潮"],
+                    "zh-Hans": ["山呼海啸般的个人崇拜声", "纯粹的竞技对抗快感", "与队友共同战斗的归属感", "看穿对手防线时的智力高潮"],
+                    "en": ["The thunderous personal praise", "Pure thrill of athletic combat", "The belonging of fighting together", "The intellectual high of outwitting foes"]
+                },
+                weight: ["E", "S", "F", "N"]
+            },
+            {
+                q: { "zh-Hant": "如果你可以擁有一種超能力？", "zh-Hans": "如果你可以拥有一种超能力？", "en": "If you could have one superpower:" },
+                options: {
+                    "zh-Hant": ["鋼鐵般的防禦身體", "預見未來 5 秒的戰局", "瞬間與所有人達成靈魂共鳴", "永不枯竭的極致體能"],
+                    "zh-Hans": ["钢铁般的防御身体", "预见未来 5 秒的战局", "瞬间与所有人达成灵魂共鸣", "永不枯竭的极致体能"],
+                    "en": ["An iron body for defense", "Seeing the game 5 seconds ahead", "Instant soul resonance with others", "Infinite and ultimate stamina"]
+                },
+                weight: ["S", "N", "F", "T"]
+            },
+            {
+                q: { "zh-Hant": "最後一問：足球對你而言是？", "zh-Hans": "最后一问：足球对你而言是？", "en": "Last question: Football to you is:" },
+                options: {
+                    "zh-Hant": ["一場關於權力與征服的戰爭", "一種自我表達的動態藝術", "一個連繫全人類情感的紐帶", "一項需要精益求精的職業"],
+                    "zh-Hans": ["一场关于权力与征服的战争", "一种自我表达的动态艺术", "一个连系全人类情感的纽带", "一项需要精益求精的职业"],
+                    "en": ["A war of power and conquest", "A dynamic art of self-expression", "A bond connecting human emotions", "A profession demanding perfection"]
+                },
+                weight: ["T", "N", "F", "S"]
+            }
+        ];
+
+        const starsData = {
+            "ISTJ": {
+                name: { "zh-Hant": "施丹", "zh-Hans": "齐达内", "en": "Zidane" },
+                role: { "zh-Hant": "紀律的藝術 · 古典大師", "zh-Hans": "纪律的艺术 · 古典大师", "en": "Art of Discipline · Master" },
+                img: "ZinedineZidane.png",
+                pos: { "zh-Hant": "中場核心", "zh-Hans": "中场核心", "en": "Midfield Maestro" },
+                val: { "zh-Hant": "責任重於泰山", "zh-Hans": "责任重于泰山", "en": "Responsibility Above All" },
+                why: { 
+                    "zh-Hant": "施丹那令人屏息的停球與傳球，不是靠瞬間的靈光，而是源於對「基本功」近乎偏執的重複打磨。",
+                    "zh-Hans": "齐达内那令人屏息的停球与传球，不是靠瞬间的灵光，而是源于对“基本功”近乎偏执的重复打磨。",
+                    "en": "Zidane's breathtaking skill comes from obsessive repetition of basics rather than mere flashes of inspiration."
+                },
+                traits: {
+                    "zh-Hant": "你是一位典型的「秩序守護者」。你做事穩健、精確，擁有嚴謹的個人邏輯。在混亂中你是最冷靜的人。\n\n【內在動機】：追求「絕對掌控」。失誤對你而言是對自我紀律的背叛。你對細節的專注讓你能在高壓下維持高品質產出。\n\n【社交與壓力】：你不渴望成為聚光燈戲精，但責任是你的價值來源。壓力下你會進入「戰鬥禪」狀態。沈默但充滿威嚴，是團隊最值得托付的人。",
+                    "zh-Hans": "你是一位典型的“秩序守护者”。你做事稳健、精确，拥有严谨的个人逻辑。在混乱中你是最冷静的人。\n\n【内在动机】：追求“绝对掌控”。失误对你而言是对自我纪律的背叛。你对细节的专注让你能在高压下维持高质量产出。\n\n【社交与压力】：你不渴望成为聚光灯戏精，但责任是你的价值来源。压力下你会进入“战斗禅”状态。沉默但充满威严，是团队最值得托付的人。",
+                    "en": "You are a 'Guardian of Order'. Stable and precise, you possess rigorous logic. You are the calmest person in the midst of chaos.\n\n[Internal Motivation]: Seeking absolute control. Mistakes are a betrayal of self-discipline. Your focus on detail ensures high-quality output under pressure.\n\n[Social & Pressure]: You don't crave the spotlight, but responsibility fuels you. Under pressure, you enter a 'Zen Combat' mode. Silent but majestic, you are the most reliable person."
+                },
+                advice: { "zh-Hant": "適度感性不會毀滅秩序，反而能讓藝術更完整。", "zh-Hans": "适度感性不会毁灭秩序，反而能让艺术更完整。", "en": "Occasional emotion doesn't destroy order; it completes the art." }
+            },
+            "ESTJ": {
+                name: { "zh-Hant": "C · 朗拿度", "zh-Hans": "C · 罗纳尔多", "en": "C. Ronaldo" },
+                role: { "zh-Hant": "意志的帝王 · 統帥", "zh-Hans": "意志的帝王 · 统帅", "en": "Monarch of Will · Commander" },
+                img: "CristianoRonaldo.png",
+                pos: { "zh-Hant": "致命終結者", "zh-Hans": "致命终结者", "en": "Fatal Finisher" },
+                val: { "zh-Hant": "勝利是唯一的答案", "zh-Hans": "胜利是唯一的答案", "en": "Victory is the Only Answer" },
+                why: { 
+                    "zh-Hant": "C朗將「自律」與「執行力」發揮到了極限。他不相信運氣，只相信目標、計劃與汗水。",
+                    "zh-Hans": "C罗将“自律”与“执行力”发挥到了极限。他不相信运气，只相信目标、计划与汗水。",
+                    "en": "Ronaldo pushed discipline to human limits. He trusts goals and sweat over luck."
+                },
+                traits: {
+                    "zh-Hant": "你擁有鋼鐵般的意志力，是天生的「開路先鋒」。你不相信懶惰，人生就是一張精密的目標日程表。\n\n【內在動機】：平庸是一種罪。這種渴求讓你成為團隊中永不熄火的火車頭。你直率務實，效率與結果高於一切虛偽的安慰。\n\n【社交與壓力】：在對抗中獲得能量。壓力越大，表現越發瘋狂。你用高標準要求自己也要求世界。你是那個能帶領眾人衝破終點線的人。",
+                    "zh-Hans": "你拥有钢铁般的意志力，是天生的“开路先锋”。你不相信懒惰，人生就是一张精密的目标日程表。\n\n【内在动机】：平庸是一种罪。这种渴求让你成为团队中永不熄火的火车头。你直率务实，效率与结果高于一切虚伪的安慰。\n\n【社交与压力】：在对抗中获得能量。压力越大，表现越发疯狂。你用高标准要求自己也要求世界。你是那个能带领众人冲破终点线的人。",
+                    "en": "You possess iron will, a natural pioneer. You despise laziness; life is a precise schedule. \n\n[Internal Motivation]: Mediocrity is a sin. This drive makes you an unstoppable engine. You are blunt and practical, valuing results over empty comfort.\n\n[Social & Pressure]: You gain energy through competition. The higher the pressure, the more ferocious you become. You demand excellence from yourself and the world."
+                },
+                advice: { "zh-Hant": "學會欣賞隊友的過程，會讓你更受愛戴。", "zh-Hans": "学会欣赏队友的过程，会让你更受爱戴。", "en": "Appreciating the process of others makes you a more beloved leader." }
+            },
+            "ISFJ": {
+                name: { "zh-Hant": "美斯", "zh-Hans": "梅西", "en": "Messi" },
+                role: { "zh-Hant": "沈默的基石 · 守護者", "zh-Hans": "沉默的基石 · 守护者", "en": "Silent Bedrock · Guardian" },
+                img: "LionelMessi.png",
+                pos: { "zh-Hant": "進攻發動機", "zh-Hans": "进攻发动机", "en": "Attack Engine" },
+                val: { "zh-Hant": "忠誠與謙遜", "zh-Hans": "忠诚与谦虚", "en": "Loyalty & Humility" },
+                why: { 
+                    "zh-Hant": "美斯一生專注、內斂、忠於家庭與球隊。用最謙遜的姿態展現最偉大的天賦。",
+                    "zh-Hans": "梅西一生专注、内敛、忠于家庭与球队。用最谦逊的姿态展现最伟大的天赋。",
+                    "en": "Messi is focused and loyal. He displays immense talent with unparalleled humility."
+                },
+                traits: {
+                    "zh-Hant": "你是一位沈默卻無比堅實的「幕後英雄」。天性謙遜、勤奮，對所愛之人有著近乎信仰的忠誠度。\n\n【內在動機】：渴望保護身邊的人並履行天命。你細膩的感知力讓你總能在關鍵時刻穩定大局。你不喜歡高談闊論，更傾向用行動證明價值。\n\n【社交與壓力】：承擔巨大的責任卻將功勞歸於集體。壓力下可能感到未被看見，但最終仍會為愛站穩腳跟。你用沈默構築了偉大。",
+                    "zh-Hans": "你是一位沉默却无比坚实的“幕后英雄”。天性谦逊、勤奋，对所爱之人有着近乎信仰的忠诚度。\n\n【内在动机】：渴望保护身边的人并履行天命。你细腻的感知力让你总能在关键时刻稳定大局。你不喜欢高谈阔论，更倾向用行动证明价值。\n\n【社交与压力】：承担巨大的责任却将功劳归于集体。压力下可能感到未被看见，但最终仍会为爱站稳脚跟。你用沉默构筑了伟大。",
+                    "en": "You are a silent but solid 'Unsung Hero'. Humble and diligent, your loyalty to loved ones is faith-like.\n\n[Internal Motivation]: Protecting those around you and fulfilling your calling. Your acute perception stabilizes the team. You prefer action over talk.\n\n[Social & Pressure]: You bear immense responsibility but give credit to the collective. Though overlooked sometimes, love keeps you grounded. You build greatness through silence."
+                },
+                advice: { "zh-Hant": "請試著看見你自己本身就是奇蹟。", "zh-Hans": "请试着看见你自己本身就是奇迹。", "en": "Remember to see that you are a miracle in yourself." }
+            },
+            "ENFP": {
+                name: { "zh-Hant": "朗拿甸奴", "zh-Hans": "罗纳尔迪尼奥", "en": "Ronaldinho" },
+                role: { "zh-Hant": "快樂的化身 · 追夢人", "zh-Hans": "快乐的化身 · 追梦人", "en": "Joy Personified · Dreamer" },
+                img: "Ronaldinho.png",
+                pos: { "zh-Hant": "進攻核心", "zh-Hans": "进攻核心", "en": "Creative Attacker" },
+                val: { "zh-Hant": "想像力萬歲", "zh-Hans": "想象力万岁", "en": "Long Live Imagination" },
+                why: { 
+                    "zh-Hant": "小羅的球風是派對與舞蹈的結合。他從不把比賽當作工作，而是靈魂的釋放。",
+                    "zh-Hans": "小罗的球风是派对与舞蹈的结合。他從不把比赛当作工作，而是灵魂的释放。",
+                    "en": "Ronaldinho's style is a blend of party and dance. He never saw games as work, but as a soul's release."
+                },
+                traits: {
+                    "zh-Hant": "你是帶動氣氛的「熱情火花」。對生命的新鮮可能感到無比興奮。你有一種感染力，能讓緊繃的人感到輕鬆。\n\n【內在動機】：追求極致的自由與快樂。你討厭教條與壓抑。你的能量來源於深層的情感連結與不受限的想像。\n\n【社交與壓力】：在社交中充電。壓力下可能會變得散漫，但一旦找回「遊戲感」，你的創造力將無人能敵。",
+                    "zh-Hans": "你是带动气氛的“热情火花”。对生命的新鲜可能感到无比兴奋。你有一种感染力，能让紧绷的人感到轻松。\n\n【内在动机】：追求极致的自由与快乐。你讨厌教条与压抑。你的能量来源于深层的情感连接与不受限的想象。\n\n【社交与压力】：在社交中充电。压力下可能会变得散漫，但一旦找回“游戏感”，你的创造力将无人能敌。",
+                    "en": "You are the 'Passionate Spark'. Excited by new possibilities, you have an infectious energy that relaxes everyone.\n\n[Internal Motivation]: Seeking ultimate freedom and joy. You despise dogma. Your energy comes from emotional connection and imagination.\n\n[Social & Pressure]: You recharge through social interaction. Under pressure, you might lose focus, but once you find the 'playfulness', you are unstoppable."
+                },
+                advice: { "zh-Hant": "給夢想加一點地基，光芒會更持久。", "zh-Hans": "给梦想加一点地基，光芒会更持久。", "en": "Add a foundation to your dreams, and your light will last longer." }
+            },
+            // ... (其他類型可根據需求補齊，邏輯與此一致)
+        };
+
+        function changeLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+            });
+            const activeBtnId = lang === 'zh-Hant' ? 'lang-hant' : lang === 'zh-Hans' ? 'lang-hans' : 'lang-en';
+            document.getElementById(activeBtnId).classList.replace('inactive', 'active');
+
+            const t = i18n[lang];
+            document.getElementById('home-title').innerHTML = t.homeTitle;
+            document.getElementById('home-desc').innerText = t.homeDesc;
+            document.getElementById('home-start-btn').innerText = t.homeStart;
+            document.getElementById('label-why').innerText = t.labelWhy;
+            document.getElementById('label-traits').innerText = t.labelTraits;
+            document.getElementById('label-pos').innerText = t.labelPos;
+            document.getElementById('label-val').innerText = t.labelVal;
+            document.getElementById('btn-save').innerText = t.btnSave;
+            document.getElementById('btn-restart').innerText = t.btnRestart;
+            document.getElementById('save-hint').innerHTML = t.saveHint;
+            document.getElementById('btn-close-preview').innerText = t.btnClose;
+
+            if(!document.getElementById('screen-quiz').classList.contains('hidden')) renderQuestion();
+            if(!document.getElementById('screen-result').classList.contains('hidden')) updateResultDisplay();
+        }
+
+        function startQuiz() {
+            currentIdx = 0;
+            answers = new Array(20).fill(null);
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const qObj = questions[currentIdx];
+            const t = i18n[currentLang];
+            document.getElementById('quiz-q-text').innerText = qObj.q[currentLang];
+            document.getElementById('quiz-progress-text').innerText = `${String(currentIdx + 1).padStart(2, '0')} / 20`;
+            document.getElementById('quiz-progress-bar').style.width = `${((currentIdx + 1) / 20) * 100}%`;
+
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            qObj.options[currentLang].forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn p-4 rounded-xl font-bold text-sm ${answers[currentIdx] === i ? 'selected' : ''}`;
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    answers[currentIdx] = i;
+                    if(currentIdx < 19) {
+                        currentIdx++;
+                        setTimeout(renderQuestion, 200);
+                    } else {
+                        showResult();
+                    }
+                };
+                container.appendChild(btn);
+            });
+
+            document.getElementById('btn-back').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
+            document.getElementById('btn-back').innerText = t.back;
+        }
+
+        function goBack() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                renderQuestion();
+            }
+        }
+
+        let mbtiResult = "";
+        function showResult() {
+            let counts = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+            answers.forEach((ansIdx, qIdx) => {
+                const trait = questions[qIdx].weight[ansIdx];
+                counts[trait]++;
+            });
+
+            mbtiResult = (counts.E >= counts.I ? 'E' : 'I') +
+                         (counts.S >= counts.N ? 'S' : 'N') +
+                         (counts.T >= counts.F ? 'T' : 'F') +
+                         (counts.J >= counts.P ? 'J' : 'P');
+
+            updateResultDisplay();
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function updateResultDisplay() {
+            if(!mbtiResult) return;
+            const data = starsData[mbtiResult] || starsData["ISFJ"];
+            document.getElementById('res-mbti').innerText = mbtiResult;
+            document.getElementById('res-title').innerText = data.name[currentLang];
+            document.getElementById('res-role').innerText = data.role[currentLang];
+            document.getElementById('res-why').innerText = data.why[currentLang];
+            document.getElementById('res-traits').innerText = data.traits[currentLang];
+            document.getElementById('res-pos').innerText = data.pos[currentLang];
+            document.getElementById('res-val').innerText = data.val[currentLang];
+            document.getElementById('res-advice').innerText = data.advice[currentLang];
+            document.getElementById('res-img').style.backgroundImage = `url('https://raw.githubusercontent.com/shanezzz1031/img/refs/heads/main/png8/${data.img}')`;
+        }
+
+        function saveResult(e) {
+            const area = document.getElementById('capture-area');
+            const btn = e.target;
+            const originalText = btn.innerText;
+            btn.innerText = i18n[currentLang].generating;
+            btn.disabled = true;
+
+            html2canvas(area, { useCORS: true, scale: 2 }).then(canvas => {
+                document.getElementById('preview-img').src = canvas.toDataURL('image/png');
+                document.getElementById('save-overlay').style.display = 'flex';
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function closePreview() { document.getElementById('save-overlay').style.display = 'none'; }
+        function resetQuiz() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-home').classList.remove('hidden');
+        }
+
+        // 初始化
+        changeLang('zh-Hant');
+    </script>
+</body>
+</html>
