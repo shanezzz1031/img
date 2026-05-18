@@ -257,185 +257,192 @@
         };
 
         const questions = [
+            // === E / I 維度（外向 vs 內向）- 共 5 題 ===
             {
                 q: { "zh-Hant": "比賽最後 10 分鐘落後一球，身為核心的你？", "zh-Hans": "比赛最后 10 分钟落后一球，身为核心的你？", "en": "Down by one with 10 mins left. As the core player, you:" },
                 options: {
-                    "zh-Hant": ["大聲激勵隊友全軍壓上", "冷靜觀察防線最薄弱的裂縫", "用感性與信念穩定大家的慌亂", "用一個不可思議的個人動作改寫局勢"],
-                    "zh-Hans": ["大声激励队友全军压上", "冷静观察防线最薄弱的裂缝", "用感性与信念稳定大家的荒乱", "用一个不可思议的个人动作改写局势"],
-                    "en": ["Shout to inspire total attack", "Calmly spot the weakest crack in defense", "Stabilize panic with emotion and faith", "Change the game with an incredible solo move"]
+                    "zh-Hant": ["大聲激勵隊友全軍壓上", "揮手示意全場球迷為球隊吶喊助威", "冷靜觀察防線，在腦海中默默盤算", "獨自帶球尋找裂縫，用行動帶領大家"],
+                    "zh-Hans": ["大声激励队友全军压上", "挥手示意全场球迷为球队呐喊助威", "冷静观察防线，在脑海中默默盘算", "独自带球寻找裂缝，用行动带领大家"],
+                    "en": ["Shout to inspire total attack", "Wave to get the crowd roaring for the team", "Calmly analyze the line and map it out silently", "Drive the ball alone, leading by action"]
                 },
-                weight: ["E", "T", "F", "N"]
-            },
-            {
-                q: { "zh-Hant": "你如何定義足球場上的「成功」？", "zh-Hans": "你如何定义足球场上的“成功”？", "en": "How do you define 'Success' on the pitch?" },
-                options: {
-                    "zh-Hant": ["捧起獎盃的絕對勝負", "踢出極致優雅的藝術足球", "團隊之間完美的化學反應", "不斷超越前一秒自我的極限"],
-                    "zh-Hans": ["捧起奖杯的绝对胜负", "踢出极致优雅的艺术足球", "团队之间完美的化学反应", "不断超越前一秒自我的极限"],
-                    "en": ["The absolute victory of lifting trophies", "Playing with ultimate artistic elegance", "Perfect chemistry within the team", "Surpassing your own limits every second"]
-                },
-                weight: ["T", "N", "F", "S"]
+                weight: ["E", "E", "I", "I"] // 2E + 2I
             },
             {
                 q: { "zh-Hant": "賽後的休息室裡，你通常傾向於？", "zh-Hans": "赛后的休息室里，你通常倾向于？", "en": "In the locker room after a game, you tend to:" },
                 options: {
-                    "zh-Hant": ["跟每個人擊掌並討論進球", "獨自坐著回想剛才的失誤細節", "關注情緒低落隊友的心情", "已經在規劃下一場的戰術對手"],
-                    "zh-Hans": ["跟每个人击掌并讨论进球", "独自坐着回想刚才的失误细节", "关注情绪低落队友的心情", "已经在规划下一场的战术对手"],
-                    "en": ["High-five everyone and discuss goals", "Sit alone reflecting on missed details", "Check on teammates feeling down", "Already planning for the next opponent"]
+                    "zh-Hant": ["跟每個人擊掌並大聲討論進球", "主動走向情緒低落的隊友擁抱安慰", "獨自坐著回想剛才的比賽細節", "洗完澡默默收拾行李，享受安靜"],
+                    "zh-Hans": ["跟每个人击掌并大声讨论进球", "主动走向情绪低落的队友拥抱安慰", "独自坐着回想刚才的比赛细节", "洗完澡默默收拾行李，享受安静"],
+                    "en": ["High-five everyone and discuss goals loudly", "Walk over to hug and comfort down teammates", "Sit alone reflecting on match details", "Pack up silently after shower, enjoying the quiet"]
                 },
-                weight: ["E", "I", "F", "J"]
+                weight: ["E", "E", "I", "I"]
             },
             {
                 q: { "zh-Hant": "面對媒體的挑釁式批評，你會？", "zh-Hans": "面对媒体的挑衅式批评，你会？", "en": "Facing provocative media criticism, you:" },
                 options: {
-                    "zh-Hant": ["直接正面回應，絕不退讓", "用冷靜的數據與事實讓其沈默", "感到受傷，但選擇內化並沈澱", "幽默化解，讓對方顯得自討沒趣"],
-                    "zh-Hans": ["直接正面回应，绝不退让", "用冷静的数据与事实让其沉默", "感到受伤，但选择内化并沉淀", "幽默化解，让对方显得自讨趣"],
-                    "en": ["Reply directly and never back down", "Silence them with cold facts and data", "Feel hurt but internalize it privately", "Laugh it off and make them look silly"]
+                    "zh-Hant": ["直接召開記者會正面回應，絕不退讓", "在社群平台上幽默自嘲或霸氣回擊", "感到受傷或不屑，但選擇內化沈澱", "關閉社交媒體，不讓外界打擾清靜"],
+                    "zh-Hans": ["直接召开记者会正面回应，绝不退让", "在社群平台上幽默自嘲或霸气回击", "感到受伤或不屑，但选择内化沉淀", "关闭社交媒体，不让外界打扰清静"],
+                    "en": ["Hold a press conference to reply directly", "Fire back or joke about it on social media", "Feel hurt or indifferent but internalize it", "Turn off social media to keep your peace"]
                 },
-                weight: ["E", "T", "I", "P"]
-            },
-            {
-                q: { "zh-Hant": "你認為「天賦」與「努力」的關係是？", "zh-Hans": "你认为“天赋”与“努力”的关系是？", "en": "How do you see 'Talent' vs 'Hard Work'?" },
-                options: {
-                    "zh-Hant": ["努力是天賦的門檻", "天賦只是未被開發的直覺", "努力是為了不負上帝給的天賦", "只要夠自律，就能創造天賦"],
-                    "zh-Hans": ["努力是天赋的门槛", "天赋只是未被开发的直觉", "努力是为了不负上帝给的天赋", "只要够自律，就能创造天赋"],
-                    "en": ["Hard work is the entry for talent", "Talent is just undeveloped intuition", "Work hard to honor God-given talent", "Total discipline can create talent"]
-                },
-                weight: ["S", "N", "F", "J"]
-            },
-            {
-                q: { "zh-Hant": "若有一球必進的機會，但傳球能讓隊友得分，你會？", "zh-Hans": "若有一球必进的机会，但传球能让队友得分，你会？", "en": "A clear chance to score, but a pass helps a teammate score. You:" },
-                options: {
-                    "zh-Hant": ["果斷射門，殺手本色", "觀察誰的位置成功率更高", "傳球給需要信心的隊友", "完全看當下的本能反應"],
-                    "zh-Hans": ["果断射门，杀手本色", "观察谁的位置成功率更高", "传球给需要信心的队友", "完全看当下的本能反应"],
-                    "en": ["Shoot decisively; killer instinct", "Check who has the higher success rate", "Pass to a teammate needing confidence", "Follow pure split-second instinct"]
-                },
-                weight: ["T", "J", "F", "P"]
-            },
-            {
-                q: { "zh-Hant": "你的球風最接近以下哪種特質？", "zh-Hans": "你的球风最接近以下哪种特质？", "en": "Which best describes your playstyle?" },
-                options: {
-                    "zh-Hant": ["像機器般精密運行的效率", "像風一樣不可預測的靈感", "像大海般包容全局的深邃", "像雷電般瞬間割裂防線的暴力"],
-                    "zh-Hans": ["像机器般精密运行的效率", "像风一样不可预测的灵感", "像大海般包容全局的深邃", "像雷电般瞬间割裂防线的暴力"],
-                    "en": ["Machine-like efficiency", "Wind-like unpredictable inspiration", "Ocean-like deep vision", "Lightning-like explosive power"]
-                },
-                weight: ["S", "N", "I", "E"]
-            },
-            {
-                q: { "zh-Hant": "面對對手的「垃圾話」挑釁，你的心理狀態？", "zh-Hans": "面对对手的“垃圾话”挑衅，你的心理状态？", "en": "Your reaction to opponent's 'trash talk'?" },
-                options: {
-                    "zh-Hant": ["憤怒爆發，絕不吃虧", "心如止水，甚至覺得好笑", "感到被冒犯，並試圖感化對方", "將其視為比賽的一種博弈"],
-                    "zh-Hans": ["愤怒爆发，绝不吃亏", "心如止水，甚至觉得好笑", "感到被冒犯，并试图感化对方", "将其视为比赛的一种博弈"],
-                    "en": ["Explosive anger; take no crap", "Calm as water; find it amusing", "Feel offended; wish they were better", "See it as just another mental game"]
-                },
-                weight: ["E", "T", "F", "N"]
+                weight: ["E", "E", "I", "I"]
             },
             {
                 q: { "zh-Hant": "在漫長的休賽季，你最理想的放鬆方式？", "zh-Hans": "在漫长的休赛季，你最理想的放松方式？", "en": "Ideal way to relax during long off-season?" },
                 options: {
-                    "zh-Hant": ["規律訓練，維持身體機能", "去未知的城市體驗冒險", "陪伴家人，享受平凡溫馨", "舉辦奢華派對慶祝賽季"],
-                    "zh-Hans": ["规律训练，维持身体机能", "去未知的城市体验冒险", "陪伴家人，享受平凡温馨", "举办奢华派对庆祝赛季"],
-                    "en": ["Regular training to keep shape", "Travel for an adventurous mission", "Stay home with family", "Host a lavish party to celebrate"]
+                    "zh-Hant": ["舉辦奢華派對或與大批朋友聚會", "前往熱鬧的時尚都市或熱帶海灘打卡", "陪伴家人或極少數摯友，享受溫馨", "獨自去未知的山林或海島隱居度假"],
+                    "zh-Hans": ["举办奢华派对或与大批朋友聚会", "前往热闹的时尚都市或热带海滩打卡", "陪伴家人或极少数挚友，享受温馨", "独自去未知的山林或海岛隐居度假"],
+                    "en": ["Host a lavish party or hang out with crowds", "Travel to trendy cities or packed beaches", "Stay with family or a few close friends", "Retreat to wild forests or a quiet island alone"]
                 },
-                weight: ["J", "N", "I", "E"]
+                weight: ["E", "E", "I", "I"]
             },
             {
-                q: { "zh-Hant": "當教練要求你踢一個完全陌生的位置時？", "zh-Hans": "当教练要求你踢一个完全陌生的位置时？", "en": "When asked to play a totally new position:" },
+                q: { "zh-Hant": "在一個萬人滿座的體育場裡，你最享受的是？", "zh-Hans": "在一个万人满座的体育场里，你最享受的是？", "en": "In a stadium of thousands, you enjoy:" },
                 options: {
-                    "zh-Hant": ["服從權威，並做到最好", "提出戰術質疑與邏輯探討", "擔心表現不好會拖累大家", "這是一個展現全能的好機會"],
-                    "zh-Hans": ["服从权威，并做到最好", "提出战术质疑与逻辑探讨", "担心表现不好会拖累大家", "这是一个展现全能的好机会"],
-                    "en": ["Obey and do your absolute best", "Question and discuss the logic", "Worry about letting the team down", "See it as a chance to show versatility"]
+                    "zh-Hant": ["全場山呼海嘯般呼喊你名字的崇拜聲", "進球後跑到場邊與全場球迷激情互動", "在全場噪音中保持內心極致專注的寂靜", "專注於腳下的草皮與皮球碰撞的純粹感"],
+                    "zh-Hans": ["全场山呼海啸般呼喊你名字的崇拜声", "进球后跑到场边与全场球迷激情互动", "在全场噪音中保持内心极致专注的寂静", "专注于脚下的草皮与皮球碰撞的纯粹感"],
+                    "en": ["The thunderous roar of the crowd chanting your name", "Running to the stands to celebrate with fans", "The absolute inner silence amid the loud noise", "The pure feel of the ball connecting with your boot"]
                 },
-                weight: ["S", "T", "F", "E"]
+                weight: ["E", "E", "I", "I"]
+            },
+
+            // === S / N 維度（實感 vs 直覺）- 共 5 題 ===
+            {
+                q: { "zh-Hant": "你如何定義足球場上的「頂級天賦」？", "zh-Hans": "你如何定义足球场上的“顶级天赋”？", "en": "How do you define 'Top Talent' on the pitch?" },
+                options: {
+                    "zh-Hant": ["零失誤的停球與百發百中的射門精準度", "強悍的身體對抗與永不枯竭的極致體能", "天馬行空的靈感與不可預測的創造力", "能看透防線背後空間的超凡球場大局觀"],
+                    "zh-Hans": ["零失误的停球与百发百中的射门精准度", "强悍的身体对抗与永不枯竭的极致体能", "天马行空的灵感与不可预测的创造力", "能看透防线背后空间的超凡球场大局观"],
+                    "en": ["Flawless touch and clinical finishing accuracy", "Dominant physicality and endless stamina", "Wild inspiration and unpredictable creativity", "X-ray vision to spot hidden space behind defenses"]
+                },
+                weight: ["S", "S", "N", "N"] // 2S + 2N
             },
             {
-                q: { "zh-Hant": "你認為一場比賽中，運氣佔了多少比例？", "zh-Hans": "你认为一场比赛中，运气占了多少比例？", "en": "How much does 'Luck' matter in a game?" },
+                q: { "zh-Hant": "你認為「天賦」與「努力」的關係是？", "zh-Hans": "你认为“天赋”与“努力”的关系是？", "en": "How do you see 'Talent' vs 'Hard Work'?" },
                 options: {
-                    "zh-Hant": ["運氣是強者的謙辭", "足球本就是機率與混沌", "運氣是給那些有信念的人", "沒人在乎，贏了就是運氣"],
-                    "zh-Hans": ["运气是强者的谦辞", "足球本就是概率与混沌", "运气是给那些有信念的人", "没人在乎，赢了就是运气"],
-                    "en": ["Luck is a strong man's humble lie", "Football is chaos and probability", "Luck favors those with faith", "Doesn't matter; winning is luck enough"]
+                    "zh-Hant": ["只要夠刻苦與自律，就能把身體開發到極致", "萬次的重複練習才能建立完美的肌肉記憶", "努力只是為了不辜負上帝賜予的靈感原型", "沒有直覺的天賦，再多的努力也只是平庸"],
+                    "zh-Hans": ["只要够刻苦与自律，就能把身体开发到极致", "万次的重复练习才能建立完美的肌肉记忆", "努力只是为了不辜负上帝赐予的灵感原型", "没有直觉的天赋，再多的努力也只是平庸"],
+                    "en": ["Hard work and discipline maximize physical limits", "Tens of thousands of reps build flawless muscle memory", "Effort is just to honor God-given inspiration", "Without raw intuition, hard work yields mediocrity"]
                 },
-                weight: ["T", "P", "F", "E"]
+                weight: ["S", "S", "N", "N"]
             },
             {
-                q: { "zh-Hant": "你如何排解失冠後的巨大失落？", "zh-Hans": "你如何排解失冠后的巨大失落？", "en": "How do you handle the loss of a trophy?" },
+                q: { "zh-Hant": "你的球風最接近以下哪種自然元素的意象？", "zh-Hans": "你的球风最接近以下哪种自然元素的意象？", "en": "Which natural element best describes your playstyle?" },
                 options: {
-                    "zh-Hant": ["立刻開始更高強度的訓練", "反思戰術與系統性的失敗", "與最親近的朋友傾訴痛哭", "乾脆消失一段時間去旅行"],
-                    "zh-Hans": ["立刻开始更高强度的训练", "反思战术与系统性的失败", "与最亲近的朋友倾诉痛哭", "干脆消失一段时间去旅行"],
-                    "en": ["Start even harder training immediately", "Reflect on tactical/systemic failure", "Cry and talk it out with close friends", "Disappear for a while on a trip"]
+                    "zh-Hant": ["像大地般穩健穩紮、極高容錯率的防守", "像雷電般瞬間爆發、撕裂防線的純粹暴力", "像風一樣不可捉摸、虛實相生的傳切進攻", "像大海般深邃包容、掌控全局的攻防節奏"],
+                    "zh-Hans": ["像大地般稳健稳扎、极高容错率的防守", "像雷电般瞬间爆发、撕裂防线的纯粹暴力", "像风一样不可捉摸、虚实相生的传切进攻", "像大海般深邃包容、掌控全局的攻防节奏"],
+                    "en": ["Solid as the earth, high-tolerance rock defense", "Lightning-like explosive power and physical burst", "Unpredictable as the wind, fluid passing tricks", "Deep as the ocean, orchestrating the entire tempo"]
                 },
-                weight: ["S", "T", "F", "P"]
+                weight: ["S", "S", "N", "N"]
             },
             {
-                q: { "zh-Hant": "如果有人惡意鏟球讓你受傷，重返賽場後？", "zh-Hans": "如果有人恶意铲球让你受伤，重返赛场后？", "en": "After a malicious tackle injures you, you return:" },
+                q: { "zh-Hant": "你在社交媒體上最常展現給球迷的一面是？", "zh-Hans": "你在社交媒体上最常展现给球迷的一面是？", "en": "Your most frequent post on social media?" },
                 options: {
-                    "zh-Hant": ["尋找機會以牙還牙", "保持冷靜，用進球報復", "寬恕對方，這就是足球", "變得更謹慎與狡黠"],
-                    "zh-Hans": ["寻找机会以牙还牙", "保持冷静，用进球报复", "宽恕对方，这就是足球", "变得更谨慎与狡黠"],
-                    "en": ["Look for a chance to pay them back", "Stay calm; let goals be the revenge", "Forgive them; that's just football", "Become more cautious and clever"]
+                    "zh-Hant": ["在健身房揮灑汗水或專業訓練的寫實照片", "與家人聚餐、溫暖樸實的日常生活記錄", "精心搭配的潮流穿搭或充滿設計感的時尚大片", "分享富有哲理、引人深思的文字語錄或黑白照"],
+                    "zh-Hans": ["在健身房挥洒汗水或专业训练的写实照片", "与家人聚餐、温暖朴实的日常生活记录", "精心搭配的潮流穿搭或充满设计感的时尚大片", "分享富有哲理、引人深思的文字语录或黑白照"],
+                    "en": ["Realistic shots of grinding hard in the gym", "Warm and down-to-earth family moments", "Curated trendy outfits and artistic fashion shoots", "Philosophical, deep quotes or conceptual photos"]
                 },
-                weight: ["E", "T", "F", "I"]
+                weight: ["S", "S", "N", "N"]
             },
             {
-                q: { "zh-Hant": "你在社交媒體上最常展現的一面是？", "zh-Hans": "你在社交媒体上最常展现的一面是？", "en": "Your most frequent post on social media?" },
+                q: { "zh-Hant": "如果你可以在賽場上擁有一種超能力，你會選？", "zh-Hans": "如果你可以在赛场上拥有一种超能力，你会选？", "en": "If you could have one superpower on the pitch:" },
                 options: {
-                    "zh-Hant": ["訓練與比賽的專業汗水", "搞怪、時尚與豐富的生活", "家庭與溫暖的日常生活", "深度且富有哲理的語錄"],
-                    "zh-Hans": ["训练与比赛的专业汗水", "搞怪、时尚与丰富的生活", "家庭与温暖的日常生活", "深度且富有哲理的语录"],
-                    "en": ["Professional training and game shots", "Funny, trendy, or stylish life", "Warm family and daily moments", "Deep and philosophical quotes"]
+                    "zh-Hant": ["鋼鐵般的防禦身體，永遠不會受傷", "充沛到恐怖的體能，全場保持全速衝刺", "預見未來 5 秒內戰局走勢的動態先知", "能瞬間與全隊達成心靈感應的靈魂共鳴"],
+                    "zh-Hans": ["钢铁般的防御身体，永远不会受伤", "充沛到恐怖的体能，全场保持全速冲刺", "预见未来 5 秒内战局走势的动态先知", "能瞬间与全队达成心灵感应的灵魂共鸣"],
+                    "en": ["An iron body that makes you immune to injuries", "Terrifying stamina to sprint at top speed all game", "A vision to see the game's timeline 5 seconds ahead", "Instant telepathy to sync the minds of all teammates"]
                 },
-                weight: ["S", "E", "F", "N"]
+                weight: ["S", "S", "N", "N"]
+            },
+
+            // === T / F 維度（思考 vs 情感）- 共 5 題 ===
+            {
+                q: { "zh-Hant": "面對對手的「垃圾話」與惡意挑釁，你的心理狀態是？", "zh-Hans": "面对对手的“垃圾话”与恶意挑衅，你的心理状态是？", "en": "Your internal reaction to opponent's 'trash talk'?" },
+                options: {
+                    "zh-Hant": ["毫無波動，甚至在心裡計算如何利用他的憤怒", "當作這場比賽的博弈工具，冷靜用進球讓他閉嘴", "感到被強烈冒犯，血液沸騰想當面討回公道", "覺得比賽不該如此功利，對對手的體育精神感到失望"],
+                    "zh-Hans": ["毫无波动，甚至在心里计算如何利用他的愤怒", "当作这场比赛的博弈工具，冷静用进球让他闭嘴", "感到被强烈冒犯，血液沸腾想当面讨回公道", "觉得比赛不该如此功利，对对手的体育精神感到失望"],
+                    "en": ["Unmoved; calculating how to exploit his anger", "Treat it as a game tool; shut him up with a cold goal", "Deeply offended; blood boiling to confront him", "Disappointed in their lack of pure sportsmanship"]
+                },
+                weight: ["T", "T", "F", "F"] // 2T + 2F
             },
             {
-                q: { "zh-Hant": "隊友在場上爭吵時，你會？", "zh-Hans": "队友在场上争吵时，你会？", "en": "When teammates argue on the pitch, you:" },
+                q: { "zh-Hant": "如果有一球必進的機會，但傳球能讓久未進球的隊友得分？", "zh-Hans": "如果有一球必进的机会，但传球能让久未进球的队友得分？", "en": "A clear chance to score, but a pass helps a struggling teammate:" },
                 options: {
-                    "zh-Hant": ["嚴厲喝止，要求專注比賽", "分析對錯，給出理性判斷", "充當和事佬，安撫雙方", "乾脆無視，專注踢好自己的"],
-                    "zh-Hans": ["严厉喝止，要求专注比赛", "分析对错，给出理性判断", "充当和事佬，安抚双方", "干脆忽视，专注踢好自己的"],
-                    "en": ["Shut them down; focus on the game", "Analyze who's right and judge fairly", "Act as a peacemaker and soothe both", "Ignore it and just play your part"]
+                    "zh-Hant": ["果斷自己射門，射手必須維持最高的進球效率", "快速評估兩人位置，誰的成功機率高就給誰", "傳過去，隊友需要這個進球來重拾自信與快樂", "傳過去，團隊的情感凝聚力高於個人數據"],
+                    "zh-Hans": ["果断自己射门，射手必须维持最高的进球效率", "快速评估两人位置，谁的成功机率高就给谁", "传过去，队友需要这个进球来重拾自信与快乐", "传过去，团队的情感凝聚力高于个人数据"],
+                    "en": ["Shoot decisively; goalscorers must maintain efficiency", "Quickly evaluate positions; pass to whoever has higher odds", "Pass it; he needs the goal to regain joy and confidence", "Pass it; team bond outweighs personal statistics"]
                 },
-                weight: ["J", "T", "F", "P"]
+                weight: ["T", "T", "F", "F"]
             },
             {
-                q: { "zh-Hant": "如果你是主教練，你最看重球員的？", "zh-Hans": "如果你是主教练，你最看重球员的？", "en": "As a manager, you value a player's:" },
+                q: { "zh-Hant": "當你踢一個完全陌生的位置時，你最在乎的是？", "zh-Hans": "当你踢一个完全陌生的位置时，你最在乎的是？", "en": "When asked to play a totally new position, you care about:" },
                 options: {
-                    "zh-Hant": ["絕對的服從與紀律", "創造力與解決問題的能力", "對團隊的愛與犧牲精神", "在關鍵時刻的冷血特質"],
-                    "zh-Hans": ["绝对的服从与纪律", "创造力与解决问题的能力", "对团队的爱与牺牲精神", "在关键时刻的冷血特质"],
-                    "en": ["Absolute obedience and discipline", "Creativity and problem-solving", "Love for team and sacrifice", "Cold-bloodedness in key moments"]
+                    "zh-Hant": ["教練這項調度的戰術邏輯與系統是否合理", "新位置的職責數據我能否高效完成", "自己表現不好會不會辜負教練與大家的信任", "如何盡快融入這個位置上的新搭檔們"],
+                    "zh-Hans": ["教练这项调度的战术逻辑与系统是否合理", "新位置的职责数据我能否高效完成", "自己表现不好会不会辜负教练与大家的信任", "如何尽快融入这个位置上的新搭档们"],
+                    "en": ["Whether the tactical logic behind this shift makes sense", "Whether I can efficiently hit the data metrics of the role", "Worrying if a poor display would let the team down", "How to build emotional chemistry with new nearby partners"]
                 },
-                weight: ["S", "N", "F", "T"]
+                weight: ["T", "T", "F", "F"]
             },
             {
-                q: { "zh-Hant": "你更希望如何結束你的職業生涯？", "zh-Hans": "你更希望如何结束你的职业生涯？", "en": "How do you want your career to end?" },
+                q: { "zh-Hant": "你如何排解失落決賽、痛失冠軍後的巨大打擊？", "zh-Hans": "你如何排解失落决赛、痛失冠军后的巨大打击？", "en": "How do you handle losing a major cup final?" },
                 options: {
-                    "zh-Hant": ["在巔峰時期華麗謝幕", "為摯愛的母隊效力到最後", "在全新的聯賽繼續冒險", "將經驗傳承給下一代天才"],
-                    "zh-Hans": ["在巅峰时期华丽谢幕", "为挚爱的母队效力到最后", "在全新的联赛继续冒险", "将经验传承给下一代天才"],
-                    "en": ["Grand finale at your peak", "Playing for your beloved club till end", "Starting adventures in new leagues", "Passing experience to the next gen"]
+                    "zh-Hant": ["徹夜反思戰術漏洞與系統性的失敗原因", "隔天立刻開啟更高強度的常規重訓與復盤", "與最親近的朋友家人徹夜長談，痛哭宣洩", "感受這份遺憾的痛苦，將其化為內心的情感養分"],
+                    "zh-Hans": ["彻夜反思战术漏洞与系统性的失败原因", "隔天立刻开启更高强度的常规重训与复盘", "与最亲近的朋友家人彻夜长谈，痛哭宣泄", "感受这份遗憾的痛苦，将其化为内心情感养分"],
+                    "en": ["Stay up analyzing tactical flaws and systemic errors", "Hit the training ground harder next morning for review", "Talk it out and cry with close friends or family", "Embrace the painful heartbreak as fuel for the soul"]
                 },
-                weight: ["E", "I", "N", "F"]
+                weight: ["T", "T", "F", "F"]
             },
             {
-                q: { "zh-Hant": "在一個萬人體育場裡，你最享受的是？", "zh-Hans": "在一个万人体育场里，你最享受的是？", "en": "In a stadium of thousands, you enjoy:" },
+                q: { "zh-Hant": "最後一問：足球這項運動對你而言的終極意義是？", "zh-Hans": "最后一问：足球这项运动对你而言的终极意义是？", "en": "Last question: What is the ultimate meaning of football to you?" },
                 options: {
-                    "zh-Hant": ["山呼海嘯般的個人崇拜聲", "純粹的競技對抗快感", "與隊友共同戰鬥的歸屬感", "看穿對手防線時的智力高潮"],
-                    "zh-Hans": ["山呼海啸般的个人崇拜声", "纯粹的竞技对抗快感", "与队友共同战斗的归属感", "看穿对手防线时的智力高潮"],
-                    "en": ["The thunderous personal praise", "Pure thrill of athletic combat", "The belonging of fighting together", "The intellectual high of outwitting foes"]
+                    "zh-Hant": ["一場關乎權力、征服與勝者為王的精密戰爭", "一項需要精益求精、講求極致專業的終身職業", "一個跨越種族與國界、連繫全人類情感的紐帶", "一種燃燒生命、展現個人信念與熱血的動態藝術"],
+                    "zh-Hans": ["一场关乎权力、征服与胜者为王的精密战争", "一项需要精益求精、讲求极致专业的终身职业", "一个跨越种族与国界、连系全人类情感的纽带", "一种燃烧生命、展现个人信念与热血的动态艺术"],
+                    "en": ["A war of conquest, power, and absolute dominance", "A profession demanding flawless skills and standard perfection", "A global bond that connects human hearts across borders", "A dynamic art form that burns with passion and pure faith"]
                 },
-                weight: ["E", "S", "F", "N"]
+                weight: ["T", "T", "F", "F"]
+            },
+
+            // === J / P 維度（判斷 vs 感知）- 共 5 題 ===
+            {
+                q: { "zh-Hant": "主教練因病缺席，球隊中需要有人跳出來主持大局？", "zh-Hans": "主教练因病缺席，球队中需要有人跳出来主持大局？", "en": "Manager is out sick and someone needs to lead. You:" },
+                options: {
+                    "zh-Hant": ["主動召集開會，嚴明紀律，按原定戰術嚴格執行", "排定接下來幾天的詳細日程與訓練目標清單", "告訴大家隨機應變，根據場上突發情況靈活對應", "放鬆氣氛，鼓勵大家跟隨直覺與臨場發揮"],
+                    "zh-Hans": ["主动召集开会，严明纪律，按原定战术严格执行", "排定接下来几天的详细日程与训练目标清单", "告诉大家随机应变，根据场上突发情况灵活对应", "放松气氛，鼓励大家跟随直觉与临场发挥"],
+                    "en": ["Call a meeting, demand discipline, follow original plan", "Draft a detailed schedule and routine checklist for the days", "Tell the team to improvise and adapt dynamically on the fly", "Lighten the mood, urging them to follow pure intuition"]
+                },
+                weight: ["J", "J", "P", "P"] // 2J + 2P
             },
             {
-                q: { "zh-Hant": "如果你可以擁有一種超能力？", "zh-Hans": "如果你可以拥有一种超能力？", "en": "If you could have one superpower:" },
+                q: { "zh-Hant": "如果有人在場上惡意鏟球讓你受傷，重返賽場後？", "zh-Hans": "如果有人恶意铲球让你受伤，重返赛场后？", "en": "After a malicious tackle injures you, you return to play:" },
                 options: {
-                    "zh-Hant": ["鋼鐵般的防禦身體", "預見未來 5 秒的戰局", "瞬間與所有人達成靈魂共鳴", "永不枯竭的極致體能"],
-                    "zh-Hans": ["钢铁般的防御身体", "预见未来 5 秒的战局", "瞬间与所有人达成灵魂共鸣", "永不枯竭的极致体能"],
-                    "en": ["An iron body for defense", "Seeing the game 5 seconds ahead", "Instant soul resonance with others", "Infinite and ultimate stamina"]
+                    "zh-Hant": ["將他列入防範黑名單，用教科書般的防守徹底鎖死他", "按部就班執行我的攻防任務，不因私人恩怨被打亂節奏", "變得更為狡黠靈活，尋找他防守走位暴露的漏洞擊碎他", "全憑當下本能與對抗強度來回應，有機會絕不手軟"],
+                    "zh-Hans": ["将他列入防范黑名单，用教科书般的防守彻底锁死他", "按部就班执行我的攻防任务，不因私人恩怨被打乱节奏", "变得更为狡黠灵活，寻找他防守走位暴露的漏洞击碎他", "全凭当下本能与对抗强度来回应，有机会绝不手软"],
+                    "en": ["Put him on a blacklist, shutting him down with textbook defense", "Stick to my set assignments without breaking my rhythm", "Become more cunning and fluid, exploiting his positioning flaws", "React with raw instinct on the ball, taking any sudden opening"]
                 },
-                weight: ["S", "N", "F", "T"]
+                weight: ["J", "J", "P", "P"]
             },
             {
-                q: { "zh-Hant": "最後一問：足球對你而言是？", "zh-Hans": "最后一问：足球对你而言是？", "en": "Last question: Football to you is:" },
+                q: { "zh-Hant": "隊友在球場上因為失誤發生激烈爭吵時，你會？", "zh-Hans": "队友在球场上因为失误发生激烈争吵时，你会？", "en": "When teammates argue on the pitch over a mistake, you:" },
                 options: {
-                    "zh-Hant": ["一場關於權力與征服的戰爭", "一種自我表達的動態藝術", "一個連繫全人類情感的紐帶", "一項需要精益求精的職業"],
-                    "zh-Hans": ["一场关于权力与征服的战争", "一种自我表达的动态艺术", "一个连系全人类情感的纽带", "一项需要精益求精的职业"],
-                    "en": ["A war of power and conquest", "A dynamic art of self-expression", "A bond connecting human emotions", "A profession demanding perfection"]
+                    "zh-Hant": ["嚴厲喝止，重申隊長權威，要求全體立刻各就各位", "明確指出是誰犯了錯、誰該補位，給出理性的對錯判斷", "充當和事佬拍拍雙方，順其自然地把話題帶過", "完全無視爭吵，相信比賽節奏推進後他們自己會解決"],
+                    "zh-Hans": ["严厉喝止，重申队长权威，要求全体立刻各就各位", "明确指出是谁犯了错、谁该补位，给出理性的对错判断", "充当和事佬拍拍双方，顺其自然地把话题带过", "完全忽视争吵，相信比赛节奏推进后他们自己会解决"],
+                    "en": ["Stop it sternly, command order, and tell them to reset", "Point out exactly who missed the assignment and how to fix it", "Act as a casual peacemaker, laughing it off smoothly", "Ignore it completely and let the flow of the game fix it"]
                 },
-                weight: ["T", "N", "F", "S"]
+                weight: ["J", "J", "P", "P"]
+            },
+            {
+                q: { "zh-Hant": "如果你是球隊主教練，你挑選隊員時最看重？", "zh-Hans": "如果你是球队主教练，你挑选队员时最看重？", "en": "As a manager, you value a player's:" },
+                options: {
+                    "zh-Hant": ["絕對的服從性、戰術紀律與鋼鐵般的執行力", "對戰術板細節的理解與日復一日穩定的高標準表現", "在死局中打破常規的解題創造力與臨場靈感", "面對混亂局面的極高適應力與多元靈活度"],
+                    "zh-Hans": ["绝对的服从性、战术纪律与钢铁般的执行力", "对战术板细节的理解与日复一日稳定的高标准表现", "在死局中打破常规的解题创造力与临场灵感", "面对混乱局面的极高适应力与多元灵活度"],
+                    "en": ["Absolute obedience, tactical discipline, and iron execution", "Deep understanding of setups and day-to-day consistency", "Out-of-the-box creativity to break stalemates on intuition", "High adaptability and versatility to thrive in chaotic plays"]
+                },
+                weight: ["J", "J", "P", "P"]
+            },
+            {
+                q: { "zh-Hant": "你更希望以何種方式為自己的職業生涯華麗謝幕？", "zh-Hans": "你更希望以何种方式为自己的职业生涯华丽谢幕？", "en": "How do you want your career to end?" },
+                options: {
+                    "zh-Hant": ["在很久以前就規劃好的巔峰年齡與特定球季完美退役", "終生只效力一隻挚愛母隊，完成一生一隊的歷史篇章", "隨心所欲，合約到哪就去未知的全新聯賽繼續冒險試試", "不設任何限制，直到身體哪天真的踢不動了再隨緣停下"],
+                    "zh-Hans": ["在很久以前就规划好的巅峰年龄与特定球季完美退役", "终生只效力一只挚爱母队，完成一生一队的历史篇章", "随心所欲，合约到哪就去未知的全新联赛继续冒险试试", "不设任何限制，直到身体哪天真的踢不动了再随缘停下"],
+                    "en": ["Retire exactly at the peak year you planned long ago", "Stay at your boyhood club for life, closing a set legacy", "Follow your gut; jump to exotic leagues as opportunities pop up", "Set no limits; play until your body stops, letting nature decide"]
+                },
+                weight: ["J", "J", "P", "P"]
             }
         ];
 
