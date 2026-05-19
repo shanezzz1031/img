@@ -122,28 +122,32 @@
 
         <!-- 首頁 -->
         <div id="screen-home" class="flex-grow flex flex-col items-center justify-center p-10 text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-8 rotate-3">
-                <span class="text-4xl text-white">⚽</span>
-            </div>
+            <img src="https://raw.githubusercontent.com/shanezzz1031/img/refs/heads/main/png8/people5bg.png" 
+             alt="封面圖片" 
+             class="w-full max-w-sm mb-8">
             <h1 id="home-title" class="text-3xl font-black text-slate-900 mb-6 leading-tight"></h1>
             <p id="home-desc" class="text-slate-500 mb-10 leading-relaxed text-sm"></p>
             <button onclick="startQuiz()" id="home-start-btn" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 transition-all"></button>
         </div>
 
         <!-- 答題頁 -->
-        <div id="screen-quiz" class="hidden flex-grow flex flex-col p-8">
-            <div class="mb-8">
-                <div class="flex justify-between items-end mb-2">
-                    <span id="quiz-progress-text" class="text-2xl font-black italic text-blue-600"></span>
+        <div id="screen-quiz" class="hidden flex-grow flex flex-col p-8 justify-between min-h-[580px]">
+            <div>
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-2">
+                        <span id="quiz-progress-text" class="text-2xl font-black italic text-blue-600">01 / 20</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="quiz-progress-bar" class="h-full bg-blue-600 transition-all duration-300 w-0"></div>
+                    </div>
                 </div>
-                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div id="quiz-progress-bar" class="h-full bg-blue-600 transition-all duration-300 w-0"></div>
-                </div>
+                <h2 id="quiz-q-text" class="text-xl font-bold text-slate-800 mb-8 leading-snug min-h-[3em]"></h2>
+                <div id="quiz-options" class="space-y-3"></div>
             </div>
-            <h2 id="quiz-q-text" class="text-xl font-bold text-slate-800 mb-8 leading-snug min-h-[3em]"></h2>
-            <div id="quiz-options" class="space-y-3 flex-grow"></div>
+            
             <div class="flex gap-4 mt-8">
-                <button id="btn-back" onclick="goBack()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-xl"></button>
+                <button id="btn-back" onclick="goBack()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-xl active:bg-slate-200">上一題</button>
+                <button id="btn-next" onclick="goNext()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl active:bg-blue-700">下一題 →</button>
             </div>
         </div>
 
@@ -190,7 +194,7 @@
                 </div>
                 
                 <div class="mt-10 pt-6 border-t border-slate-100 text-center">
-                    <p class="text-slate-300 text-[10px] font-bold tracking-widest uppercase">Football Soul Profile · 2026 Edition</p>
+                    <p class="text-slate-300 text-[10px] font-bold tracking-widest uppercase">Football Soul Profile • 2026 CSS Edited</p>
                 </div>
             </div>
 
@@ -203,7 +207,11 @@
     </div>
 
     <script>
-        let currentLang = 'zh-Hant';
+		let currentLang = 'zh-Hant';
+		let currentIdx = 0;
+		let answers = new Array(20).fill(null);
+		let mbtiResult = "";   // ← 加上這行
+
 
         const i18n = {
             'zh-Hant': {
@@ -256,205 +264,325 @@
             }
         };
 
+		// 1. 定義 16 型人格與對應球星資料庫
+		const resultsData = {
+			"ISTJ": { name: "施丹", img: "ZinedineZidane.png" },
+			"ESTJ": { name: "C 朗", img: "CristianoRonaldo.png" },
+			"ISFP": { name: "尼馬", img: "Neymar.png" },
+			"INTP": { name: "迪布尼", img: "KevinDeBruyne.png" },
+			"INFJ": { name: "派路", img: "AndreaPirlo.png" },
+			"ISTP": { name: "姆巴佩", img: "KylianMbappe.png" },
+			"ESFJ": { name: "基斯文", img: "AntoineGriezmann.png" },
+			"INTJ": { name: "哥迪奧拿", img: "PepGuardiola.png" },
+			"ENTP": { name: "湯馬士·梅拿", img: "ThomasMuller.png" },
+			"ENFJ": { name: "杜奧巴", img: "DidierDrogba.png" },
+			"ENFP": { name: "朗拿甸奴", img: "Ronaldinho.png" },
+			"ESTP": { name: "蘇亞雷斯", img: "LuisSuarez.png" },
+			"ESFP": { name: "普巴", img: "PaulPogba.png" },
+			"ENTJ": { name: "伊巴謙莫域", img: "ZlatanIbrahimovic.png" },
+			"INFP": { name: "美斯", img: "LionelMessi.png" },
+			"ISFJ": { name: "卡卡", img: "Kaka.png" }
+		};
+
+		// 2. 核心計算函數：將您目前的 20 題分數轉換為 MBTI 字串
+		function getFinalResult() {
+			// 假設您已經定義了 scores 物件 (E, I, S, N, T, F, J, P)
+			// 如果沒有，請確保在選擇選項時有正確累加這些變數
+			let mbti = "";
+			mbti += (scores.E >= scores.I) ? "E" : "I";
+			mbti += (scores.S >= scores.N) ? "S" : "N";
+			mbti += (scores.T >= scores.F) ? "T" : "F";
+			mbti += (scores.J >= scores.P) ? "J" : "P";
+
+			return resultsData[mbti];
+		}
+
         const questions = [
-            // === E / I 維度（外向 vs 內向）- 共 5 題 ===
+            // === E / I 維度（共 5 題）===
             {
                 q: { "zh-Hant": "比賽最後 10 分鐘落後一球，身為核心的你？", "zh-Hans": "比赛最后 10 分钟落后一球，身为核心的你？", "en": "Down by one with 10 mins left. As the core player, you:" },
                 options: {
-                    "zh-Hant": ["大聲激勵隊友全軍壓上", "揮手示意全場球迷為球隊吶喊助威", "冷靜觀察防線，在腦海中默默盤算", "獨自帶球尋找裂縫，用行動帶領大家"],
-                    "zh-Hans": ["大声激励队友全军压上", "挥手示意全场球迷为球队呐喊助威", "冷静观察防线，在脑海中默默盘算", "独自带球寻找裂缝，用行动带领大家"],
-                    "en": ["Shout to inspire total attack", "Wave to get the crowd roaring for the team", "Calmly analyze the line and map it out silently", "Drive the ball alone, leading by action"]
+                    "zh-Hant": ["大聲激勵隊友全軍壓上", "揮手要求全員拉開空間、嚴格防守", "咬緊牙關默默全力回防攔截", "在腦海中默默盤算，靜靜尋找機會"],
+                    "zh-Hans": ["大声激励队友全军压上", "挥手要求全員拉开空间、严格防守", "咬紧牙关默默全力回防拦截", "在脑海中默默盘算，静静寻找机会"],
+                    "en": ["Shout to inspire total attack", "Wave to widen space and strictly defend", "Grit your teeth and track back to tackle", "Formulate a calm plan silently in your head"]
                 },
-                weight: ["E", "E", "I", "I"] // 2E + 2I
+                weight: ["E", "E", "I", "I"]
             },
             {
                 q: { "zh-Hant": "賽後的休息室裡，你通常傾向於？", "zh-Hans": "赛后的休息室里，你通常倾向于？", "en": "In the locker room after a game, you tend to:" },
                 options: {
-                    "zh-Hant": ["跟每個人擊掌並大聲討論進球", "主動走向情緒低落的隊友擁抱安慰", "獨自坐著回想剛才的比賽細節", "洗完澡默默收拾行李，享受安靜"],
-                    "zh-Hans": ["跟每个人击掌并大声讨论进球", "主动走向情绪低落的队友拥抱安慰", "独自坐着回想刚才的比赛细节", "洗完澡默默收拾行李，享受安静"],
-                    "en": ["High-five everyone and discuss goals loudly", "Walk over to hug and comfort down teammates", "Sit alone reflecting on match details", "Pack up silently after shower, enjoying the quiet"]
+                    "zh-Hant": ["跟每個人熱烈討論進球細節", "主動分析今天的攻防數據與得失", "安靜坐著給予受傷隊友溫暖關懷", "獨自坐著閉眼冥想，享受個人寧靜"],
+                    "zh-Hans": ["跟每个人热烈讨论进球细节", "主动分析今天的攻防数据与得失", "安静坐着给予受伤队友温暖关怀", "独自坐着闭眼瞑想，享受个人宁静"],
+                    "en": ["Discuss goal details passionately with everyone", "Analyze on-field stats and tactical details", "Sit quietly offering warm care to injured peers", "Reflect in pure silence with eyes closed"]
                 },
                 weight: ["E", "E", "I", "I"]
             },
             {
                 q: { "zh-Hant": "面對媒體的挑釁式批評，你會？", "zh-Hans": "面对媒体的挑衅式批评，你会？", "en": "Facing provocative media criticism, you:" },
                 options: {
-                    "zh-Hant": ["直接召開記者會正面回應，絕不退讓", "在社群平台上幽默自嘲或霸氣回擊", "感到受傷或不屑，但選擇內化沈澱", "關閉社交媒體，不讓外界打擾清靜"],
-                    "zh-Hans": ["直接召开记者会正面回应，绝不退让", "在社群平台上幽默自嘲或霸气回击", "感到受伤或不屑，但选择内化沉淀", "关闭社交媒体，不让外界打扰清静"],
-                    "en": ["Hold a press conference to reply directly", "Fire back or joke about it on social media", "Feel hurt or indifferent but internalize it", "Turn off social media to keep your peace"]
+                    "zh-Hant": ["正面回擊，用數據和球場實力說話", "用冷靜而邏輯清晰的理論讓其沈默", "感到被冒犯，但選擇用溫和謙遜的姿態帶過", "完全不理會外界噪音，沈澱內心精神信仰"],
+                    "zh-Hans": ["正面回击，用数据和球场实力说话", "用冷静而逻辑清晰的理论让其沉默", "感到被冒犯，但选择用温和谦逊的姿态带过", "完全不理会外界噪音，沉淀内心精神信仰"],
+                    "en": ["Fire back, letting on-pitch stats speak", "Silence them with cold, logical theories", "Feel offended but bypass it with humility", "Ignore the noise completely to retain inner peace"]
                 },
                 weight: ["E", "E", "I", "I"]
             },
             {
                 q: { "zh-Hant": "在漫長的休賽季，你最理想的放鬆方式？", "zh-Hans": "在漫长的休赛季，你最理想的放松方式？", "en": "Ideal way to relax during long off-season?" },
                 options: {
-                    "zh-Hant": ["舉辦奢華派對或與大批朋友聚會", "前往熱鬧的時尚都市或熱帶海灘打卡", "陪伴家人或極少數摯友，享受溫馨", "獨自去未知的山林或海島隱居度假"],
-                    "zh-Hans": ["举办奢华派对或与大批朋友聚会", "前往热闹的时尚都市或热带海滩打卡", "陪伴家人或极少数挚友，享受温馨", "独自去未知的山林或海岛隐居度假"],
-                    "en": ["Host a lavish party or hang out with crowds", "Travel to trendy cities or packed beaches", "Stay with family or a few close friends", "Retreat to wild forests or a quiet island alone"]
+                    "zh-Hant": ["舉辦大型派對，與朋友一起狂歡", "參加高規格訓練營，按部就班打磨新技能", "陪伴家人與摯友，感受溫馨的日常生活", "獨自去幽靜的海島或山林禪修，洗滌心靈"],
+                    "zh-Hans": ["举办大型派对，与朋友一起狂欢", "参加高规格训练营，按部就班打磨新技能", "陪伴家人与挚友，感受温馨的日常生活", "独自去幽静的海岛或山林禅修，洗涤心灵"],
+                    "en": ["Host major parties and celebrate with friends", "Join elite bootcamps to strictly polish skills", "Stay home with family and enjoy warm routines", "Travel alone to a quiet sanctuary to refresh your soul"]
                 },
                 weight: ["E", "E", "I", "I"]
             },
             {
-                q: { "zh-Hant": "在一個萬人滿座的體育場裡，你最享受的是？", "zh-Hans": "在一个万人满座的体育场里，你最享受的是？", "en": "In a stadium of thousands, you enjoy:" },
+                q: { "zh-Hant": "在一個萬人體育場裡，你最享受的是？", "zh-Hans": "在一个万人体育场里，你最享受的是？", "en": "In a stadium of thousands, you enjoy:" },
                 options: {
-                    "zh-Hant": ["全場山呼海嘯般呼喊你名字的崇拜聲", "進球後跑到場邊與全場球迷激情互動", "在全場噪音中保持內心極致專注的寂靜", "專注於腳下的草皮與皮球碰撞的純粹感"],
-                    "zh-Hans": ["全场山呼海啸般呼喊你名字的崇拜声", "进球后跑到场边与全场球迷激情互动", "在全场噪音中保持内心极致专注的寂静", "专注于脚下的草皮与皮球碰撞的纯粹感"],
-                    "en": ["The thunderous roar of the crowd chanting your name", "Running to the stands to celebrate with fans", "The absolute inner silence amid the loud noise", "The pure feel of the ball connecting with your boot"]
+                    "zh-Hant": ["全場山呼海嘯般呼喊你名字的激情互動", "戰術按部就班完美施展帶來的智力享受", "默默帶領球隊獲得勝利的重責任感", "奔跑在草地上時那種純粹的信仰力量"],
+                    "zh-Hans": ["全场山呼海啸般呼喊你名字的激情互动", "战术按部就班完美施展带来的智力享受", "默默带领球队获得胜利的重责任感", "奔跑在草地上时那种纯粹的信仰力量"],
+                    "en": ["The thunderous crowd chanting your name passionately", "Intellectual joy of tactical setups executed perfectly", "The deep sense of duty leading the team quietly", "The pure spiritual power of running on the pitch"]
                 },
                 weight: ["E", "E", "I", "I"]
             },
 
-            // === S / N 維度（實感 vs 直覺）- 共 5 題 ===
+            // === S / N 維度（共 5 題）===
             {
                 q: { "zh-Hant": "你如何定義足球場上的「頂級天賦」？", "zh-Hans": "你如何定义足球场上的“顶级天赋”？", "en": "How do you define 'Top Talent' on the pitch?" },
                 options: {
-                    "zh-Hant": ["零失誤的停球與百發百中的射門精準度", "強悍的身體對抗與永不枯竭的極致體能", "天馬行空的靈感與不可預測的創造力", "能看透防線背後空間的超凡球場大局觀"],
-                    "zh-Hans": ["零失误的停球与百发百中的射门精准度", "强悍的身体对抗与永不枯竭的极致体能", "天马行空的灵感与不可预测的创造力", "能看透防线背后空间的超凡球场大局观"],
-                    "en": ["Flawless touch and clinical finishing accuracy", "Dominant physicality and endless stamina", "Wild inspiration and unpredictable creativity", "X-ray vision to spot hidden space behind defenses"]
+                    "zh-Hant": ["強大的對抗爆發力與無可挑剔的肌肉動作", "能預見三步之後戰局空間的動態大局觀", "零失誤的球感與在極限狀態下的穩定度", "不沾塵俗的腳法與將情感化為藝術的創作"],
+                    "zh-Hans": ["强大的对抗爆发力与无可挑剔的肌肉动作", "能预见三步之后战局空间的动态大局观", "零失误的球感与在极限状态下的稳定度", "不沾尘俗的脚法与将情感化为艺术的创作"],
+                    "en": ["Decisive physical explosiveness and muscle memory", "Visionary vision to foresee space 3 steps ahead", "Flawless touch and stability under physical limits", "Pure graceful skills converting feelings into art"]
                 },
-                weight: ["S", "S", "N", "N"] // 2S + 2N
+                weight: ["S", "N", "S", "N"]
             },
             {
                 q: { "zh-Hant": "你認為「天賦」與「努力」的關係是？", "zh-Hans": "你认为“天赋”与“努力”的关系是？", "en": "How do you see 'Talent' vs 'Hard Work'?" },
                 options: {
-                    "zh-Hant": ["只要夠刻苦與自律，就能把身體開發到極致", "萬次的重複練習才能建立完美的肌肉記憶", "努力只是為了不辜負上帝賜予的靈感原型", "沒有直覺的天賦，再多的努力也只是平庸"],
-                    "zh-Hans": ["只要够刻苦与自律，就能把身体开发到极致", "万次的重复练习才能建立完美的肌肉记忆", "努力只是为了不辜负上帝赐予的灵感原型", "没有直觉的天赋，再多的努力也只是平庸"],
-                    "en": ["Hard work and discipline maximize physical limits", "Tens of thousands of reps build flawless muscle memory", "Effort is just to honor God-given inspiration", "Without raw intuition, hard work yields mediocrity"]
+                    "zh-Hant": ["萬次重複練習所建立的無瑕肌肉記憶", "努力只是為了承載戰略框架的實踐", "努力是為了不負上帝賜予的謙遜本分", "天賦只是未被塵世污染的靈感直覺"],
+                    "zh-Hans": ["万次重复练习所建立的无瑕肌肉记忆", "努力只是为了承载战略框架的实践", "努力是为了不负上帝赐予的谦逊本分", "天赋只是未被尘世污染的灵感直觉"],
+                    "en": ["Flawless muscle memory built by endless reps", "Effort is just to implement strategic systems", "Working hard to honor God-given duties humbly", "Talent is pure intuitive inspiration untouched by world"]
                 },
-                weight: ["S", "S", "N", "N"]
+                weight: ["S", "N", "S", "N"]
             },
             {
-                q: { "zh-Hant": "你的球風最接近以下哪種自然元素的意象？", "zh-Hans": "你的球风最接近以下哪种自然元素的意象？", "en": "Which natural element best describes your playstyle?" },
+                q: { "zh-Hant": "你的球風最接近以下哪種元素的意象？", "zh-Hans": "你的球风最接近以下哪种元素的意象？", "en": "Which element best describes your playstyle?" },
                 options: {
-                    "zh-Hant": ["像大地般穩健穩紮、極高容錯率的防守", "像雷電般瞬間爆發、撕裂防線的純粹暴力", "像風一樣不可捉摸、虛實相生的傳切進攻", "像大海般深邃包容、掌控全局的攻防節奏"],
-                    "zh-Hans": ["像大地般稳健稳扎、极高容错率的防守", "像雷电般瞬间爆发、撕裂防线的纯粹暴力", "像风一样不可捉摸、虚实相生的传切进攻", "像大海般深邃包容、掌控全局的攻防节奏"],
-                    "en": ["Solid as the earth, high-tolerance rock defense", "Lightning-like explosive power and physical burst", "Unpredictable as the wind, fluid passing tricks", "Deep as the ocean, orchestrating the entire tempo"]
+                    "zh-Hant": ["像雷電般具有強烈物理破壞力的實體推進", "像空氣般無處不在、主導全局流動的系統", "像大地般沉穩無言、守護邊疆的安全壁壘", "像風一樣不可捉摸、帶著憂鬱氣質的弧線"],
+                    "zh-Hans": ["像雷电般具有强烈物理破坏力的实体推进", "像空气般无处不在、主导全局流动的系统", "像大地般沉稳无言、守护边疆的安全壁垒", "像风一样不可捉摸、带着忧郁气质的弧线"],
+                    "en": ["Lightning-like physical burst and solid advance", "Air-like invisible systems governing the flow", "Earth-like quiet bedrock guarding the defense line", "Wind-like unpredictable curves with a hint of sorrow"]
                 },
-                weight: ["S", "S", "N", "N"]
+                weight: ["S", "N", "S", "N"]
             },
             {
-                q: { "zh-Hant": "你在社交媒體上最常展現給球迷的一面是？", "zh-Hans": "你在社交媒体上最常展现给球迷的一面是？", "en": "Your most frequent post on social media?" },
+                q: { "zh-Hant": "你在社交媒體上最常展現的一面是？", "zh-Hans": "你在社交媒体上最常展现的一面是？", "en": "Your most frequent post on social media?" },
                 options: {
-                    "zh-Hant": ["在健身房揮灑汗水或專業訓練的寫實照片", "與家人聚餐、溫暖樸實的日常生活記錄", "精心搭配的潮流穿搭或充滿設計感的時尚大片", "分享富有哲理、引人深思的文字語錄或黑白照"],
-                    "zh-Hans": ["在健身房挥洒汗水或专业训练的写实照片", "与家人聚餐、温暖朴实的日常生活记录", "精心搭配的潮流穿搭或充满设计感的时尚大片", "分享富有哲理、引人深思的文字语录或黑白照"],
-                    "en": ["Realistic shots of grinding hard in the gym", "Warm and down-to-earth family moments", "Curated trendy outfits and artistic fashion shoots", "Philosophical, deep quotes or conceptual photos"]
+                    "zh-Hant": ["在健身房揮灑汗水或專業訓練的寫實照片", "分享充滿思維火花與哲理的前沿設計或觀點", "與家人聚餐、溫慢樸實的日常美好畫面", "極具藝術美感或傳遞精神信仰的思想語錄"],
+                    "zh-Hans": ["在健身房挥洒汗水或专业训练的写实照片", "分享充满思维火花与哲理的前沿设计或观点", "与家人餐、温暖朴实的日常美好画面", "极具艺术美感或传递精神信仰的思想语录"],
+                    "en": ["Realistic gym training and standard workout shots", "Sparkling ideas and structural tactical views", "Down-to-earth warm family daily moments", "High aesthetic captures with spiritual quotes"]
                 },
-                weight: ["S", "S", "N", "N"]
+                weight: ["S", "N", "S", "N"]
             },
             {
-                q: { "zh-Hant": "如果你可以在賽場上擁有一種超能力，你會選？", "zh-Hans": "如果你可以在赛场上拥有一种超能力，你会选？", "en": "If you could have one superpower on the pitch:" },
+                q: { "zh-Hant": "如果你可以在賽場上擁有一種超能力？", "zh-Hans": "如果你可以在赛场上拥有一种超能力？", "en": "If you could have one superpower on the pitch:" },
                 options: {
-                    "zh-Hant": ["鋼鐵般的防禦身體，永遠不會受傷", "充沛到恐怖的體能，全場保持全速衝刺", "預見未來 5 秒內戰局走勢的動態先知", "能瞬間與全隊達成心靈感應的靈魂共鳴"],
-                    "zh-Hans": ["钢铁般的防御身体，永远不会受伤", "充沛到恐怖的体能，全场保持全速冲刺", "预见未来 5 秒内战局走势的动态先知", "能瞬间与全队达成心灵感应的灵魂共鸣"],
-                    "en": ["An iron body that makes you immune to injuries", "Terrifying stamina to sprint at top speed all game", "A vision to see the game's timeline 5 seconds ahead", "Instant telepathy to sync the minds of all teammates"]
+                    "zh-Hant": ["永不乾枯、全場保持極速衝刺的極致體能", "預見未來 5 秒內戰略空隙的動態大腦", "像海綿般吸收所有衝擊、永不受傷的鋼鐵防禦", "能在混亂綠茵中瞬間喚醒奇蹟的靈魂感知"],
+                    "zh-Hans": ["永不干枯、全场保持极速冲刺的极致体能", "预见未来 5 秒内战略空隙的动态大脑", "像海绵般吸收所有冲击、永不受伤的钢铁防御", "能在混乱绿茵中瞬间唤醒奇迹的灵魂感知"],
+                    "en": ["Infinite physical power to sprint non-stop all game", "Predictive strategic vision 5 seconds ahead", "Iron defense absorbing all physical impacts immune to injury", "Soul resonance to evoke miracles in green chaos"]
                 },
-                weight: ["S", "S", "N", "N"]
-            },
-
-            // === T / F 維度（思考 vs 情感）- 共 5 題 ===
-            {
-                q: { "zh-Hant": "面對對手的「垃圾話」與惡意挑釁，你的心理狀態是？", "zh-Hans": "面对对手的“垃圾话”与恶意挑衅，你的心理状态是？", "en": "Your internal reaction to opponent's 'trash talk'?" },
-                options: {
-                    "zh-Hant": ["毫無波動，甚至在心裡計算如何利用他的憤怒", "當作這場比賽的博弈工具，冷靜用進球讓他閉嘴", "感到被強烈冒犯，血液沸騰想當面討回公道", "覺得比賽不該如此功利，對對手的體育精神感到失望"],
-                    "zh-Hans": ["毫无波动，甚至在心里计算如何利用他的愤怒", "当作这场比赛的博弈工具，冷静用进球让他闭嘴", "感到被强烈冒犯，血液沸腾想当面讨回公道", "觉得比赛不该如此功利，对对手的体育精神感到失望"],
-                    "en": ["Unmoved; calculating how to exploit his anger", "Treat it as a game tool; shut him up with a cold goal", "Deeply offended; blood boiling to confront him", "Disappointed in their lack of pure sportsmanship"]
-                },
-                weight: ["T", "T", "F", "F"] // 2T + 2F
-            },
-            {
-                q: { "zh-Hant": "如果有一球必進的機會，但傳球能讓久未進球的隊友得分？", "zh-Hans": "如果有一球必进的机会，但传球能让久未进球的队友得分？", "en": "A clear chance to score, but a pass helps a struggling teammate:" },
-                options: {
-                    "zh-Hant": ["果斷自己射門，射手必須維持最高的進球效率", "快速評估兩人位置，誰的成功機率高就給誰", "傳過去，隊友需要這個進球來重拾自信與快樂", "傳過去，團隊的情感凝聚力高於個人數據"],
-                    "zh-Hans": ["果断自己射门，射手必须维持最高的进球效率", "快速评估两人位置，谁的成功机率高就给谁", "传过去，队友需要这个进球来重拾自信与快乐", "传过去，团队的情感凝聚力高于个人数据"],
-                    "en": ["Shoot decisively; goalscorers must maintain efficiency", "Quickly evaluate positions; pass to whoever has higher odds", "Pass it; he needs the goal to regain joy and confidence", "Pass it; team bond outweighs personal statistics"]
-                },
-                weight: ["T", "T", "F", "F"]
-            },
-            {
-                q: { "zh-Hant": "當你踢一個完全陌生的位置時，你最在乎的是？", "zh-Hans": "当你踢一个完全陌生的位置时，你最在乎的是？", "en": "When asked to play a totally new position, you care about:" },
-                options: {
-                    "zh-Hant": ["教練這項調度的戰術邏輯與系統是否合理", "新位置的職責數據我能否高效完成", "自己表現不好會不會辜負教練與大家的信任", "如何盡快融入這個位置上的新搭檔們"],
-                    "zh-Hans": ["教练这项调度的战术逻辑与系统是否合理", "新位置的职责数据我能否高效完成", "自己表现不好会不会辜负教练与大家的信任", "如何尽快融入这个位置上的新搭档们"],
-                    "en": ["Whether the tactical logic behind this shift makes sense", "Whether I can efficiently hit the data metrics of the role", "Worrying if a poor display would let the team down", "How to build emotional chemistry with new nearby partners"]
-                },
-                weight: ["T", "T", "F", "F"]
-            },
-            {
-                q: { "zh-Hant": "你如何排解失落決賽、痛失冠軍後的巨大打擊？", "zh-Hans": "你如何排解失落决赛、痛失冠军后的巨大打击？", "en": "How do you handle losing a major cup final?" },
-                options: {
-                    "zh-Hant": ["徹夜反思戰術漏洞與系統性的失敗原因", "隔天立刻開啟更高強度的常規重訓與復盤", "與最親近的朋友家人徹夜長談，痛哭宣洩", "感受這份遺憾的痛苦，將其化為內心的情感養分"],
-                    "zh-Hans": ["彻夜反思战术漏洞与系统性的失败原因", "隔天立刻开启更高强度的常规重训与复盘", "与最亲近的朋友家人彻夜长谈，痛哭宣泄", "感受这份遗憾的痛苦，将其化为内心情感养分"],
-                    "en": ["Stay up analyzing tactical flaws and systemic errors", "Hit the training ground harder next morning for review", "Talk it out and cry with close friends or family", "Embrace the painful heartbreak as fuel for the soul"]
-                },
-                weight: ["T", "T", "F", "F"]
-            },
-            {
-                q: { "zh-Hant": "最後一問：足球這項運動對你而言的終極意義是？", "zh-Hans": "最后一问：足球这项运动对你而言的终极意义是？", "en": "Last question: What is the ultimate meaning of football to you?" },
-                options: {
-                    "zh-Hant": ["一場關乎權力、征服與勝者為王的精密戰爭", "一項需要精益求精、講求極致專業的終身職業", "一個跨越種族與國界、連繫全人類情感的紐帶", "一種燃燒生命、展現個人信念與熱血的動態藝術"],
-                    "zh-Hans": ["一场关乎权力、征服与胜者为王的精密战争", "一项需要精益求精、讲求极致专业的终身职业", "一个跨越种族与国界、连系全人类情感的纽带", "一种燃烧生命、展现个人信念与热血的动态艺术"],
-                    "en": ["A war of conquest, power, and absolute dominance", "A profession demanding flawless skills and standard perfection", "A global bond that connects human hearts across borders", "A dynamic art form that burns with passion and pure faith"]
-                },
-                weight: ["T", "T", "F", "F"]
+                weight: ["S", "N", "S", "N"]
             },
 
-            // === J / P 維度（判斷 vs 感知）- 共 5 題 ===
+            // === T / F 維度（共 5 題）===
             {
-                q: { "zh-Hant": "主教練因病缺席，球隊中需要有人跳出來主持大局？", "zh-Hans": "主教练因病缺席，球队中需要有人跳出来主持大局？", "en": "Manager is out sick and someone needs to lead. You:" },
+                q: { "zh-Hant": "面對對手的「垃圾話」挑釁，你的心理狀態？", "zh-Hans": "面对对手的“垃圾话”挑衅，你的心理状态是？", "en": "Your reaction to opponent's 'trash talk'?" },
                 options: {
-                    "zh-Hant": ["主動召集開會，嚴明紀律，按原定戰術嚴格執行", "排定接下來幾天的詳細日程與訓練目標清單", "告訴大家隨機應變，根據場上突發情況靈活對應", "放鬆氣氛，鼓勵大家跟隨直覺與臨場發揮"],
-                    "zh-Hans": ["主动召集开会，严明纪律，按原定战术严格执行", "排定接下来几天的详细日程与训练目标清单", "告诉大家随机应变，根据场上突发情况灵活对应", "放松气氛，鼓励大家跟随直觉与临场发挥"],
-                    "en": ["Call a meeting, demand discipline, follow original plan", "Draft a detailed schedule and routine checklist for the days", "Tell the team to improvise and adapt dynamically on the fly", "Lighten the mood, urging them to follow pure intuition"]
+                    "zh-Hant": ["用絕對的進球數據和規則邏輯強勢碾壓對方", "將其視為博弈變量，精準分析其心理漏洞", "感到被冒犯，但寬恕對方並做好自己的防守本分", "心如止水，用高尚的信仰與體面超越這一切"],
+                    "zh-Hans": ["用绝对的进球数据和规则逻辑强势碾压对方", "将其视为博弈变量，精准分析其心理漏洞", "感到被冒犯，但宽恕对方并做好自己的防守本分", "心如止水，用高尚的信仰与体面超越这一切"],
+                    "en": ["Dominate them with cold scores and rigid logic", "See it as a metric variable and check their logic flaws", "Feel offended but forgive them and stick to your duties", "Keep quiet, transcending it with elegant faith"]
                 },
-                weight: ["J", "J", "P", "P"] // 2J + 2P
+                weight: ["T", "T", "F", "F"]
             },
             {
-                q: { "zh-Hant": "如果有人在場上惡意鏟球讓你受傷，重返賽場後？", "zh-Hans": "如果有人恶意铲球让你受伤，重返赛场后？", "en": "After a malicious tackle injures you, you return to play:" },
+                q: { "zh-Hant": "一球必進的機會，但傳球能讓久未進球的隊友得分，你會？", "zh-Hans": "一球必进的机会，但传球能让久未进球的队友得分，你会？", "en": "A clear chance to score, but a pass helps a teammate score:" },
                 options: {
-                    "zh-Hant": ["將他列入防範黑名單，用教科書般的防守徹底鎖死他", "按部就班執行我的攻防任務，不因私人恩怨被打亂節奏", "變得更為狡黠靈活，尋找他防守走位暴露的漏洞擊碎他", "全憑當下本能與對抗強度來回應，有機會絕不手軟"],
-                    "zh-Hans": ["将他列入防范黑名单，用教科书般的防守彻底锁死他", "按部就班执行我的攻防任务，不因私人恩怨被打乱节奏", "变得更为狡黠灵活，寻找他防守走位暴露的漏洞击碎他", "全凭当下本能与对抗强度来回应，有机会绝不手软"],
-                    "en": ["Put him on a blacklist, shutting him down with textbook defense", "Stick to my set assignments without breaking my rhythm", "Become more cunning and fluid, exploiting his positioning flaws", "React with raw instinct on the ball, taking any sudden opening"]
+                    "zh-Hant": ["果斷射門，這是身為前鋒最有效率的解法", "快速評估兩人位置的射門機率，誰高給誰", "傳過去，隊友此時需要這個進球來重拾自信", "傳過去，團隊的情感共鳴高於任何冰冷的數據"],
+                    "zh-Hans": ["果断射门，这是身为前锋最有效率的解法", "快速评估两人位置的射门机率，谁高给谁", "传过去，队友此时需要这个进球来重拾自信", "传过去，团队的情感共鸣高于任何冰冷的数据"],
+                    "en": ["Shoot decisively; striker efficiency is primary", "Evaluate position success rate and choose mathematically", "Pass; they need this goal to rebuild confidence", "Pass; team connection is far superior to cold stats"]
+                },
+                weight: ["T", "T", "F", "F"]
+            },
+            {
+                q: { "zh-Hant": "當你被安排到一個完全陌生的位置時，你最在乎？", "zh-Hans": "当你被安排到一个完全陌生的位置时，你最在乎？", "en": "When asked to play a totally new position, you care about:" },
+                options: {
+                    "zh-Hant": ["在這個新位置上我能否維持一樣的高效率表現", "這個調度背後的整體戰略系統是否合乎科學", "新工作表現不佳會不會拖累大家、辜負信任", "如何盡快融入這個位置上的新夥伴，達成默契"],
+                    "zh-Hans": ["在这个新位置上我能否维持一样的高效率表现", "这个调度背后的整体战略系统是否合乎科学", "新工作表现不佳会不会拖累大家、辜负信任", "如何尽快融入这个位置上的新伙伴，达成契"],
+                    "en": ["Whether I can deliver the same high-efficiency metrics", "The logical and systemic science behind this scheduling", "Worrying if a poor display would disappoint the trust", "How to connect with new partners and spark mutual trust"]
+                },
+                weight: ["T", "T", "F", "F"]
+            },
+            {
+                q: { "zh-Hant": "你如何排解痛失冠軍後的巨大打擊？", "zh-Hans": "你如何排解痛失冠军后的巨大打击？", "en": "How do you handle losing a major cup final?" },
+                options: {
+                    "zh-Hant": ["隔天立刻開啟更高強度的常規重訓，用行動擊碎失敗", "徹夜覆盤戰術，找出系統在關鍵時刻的邏輯裂縫", "回到家人與摯友身邊傾訴，尋求安靜的慰藉與溫暖", "擁抱這份缺憾的美感，將痛楚轉化為精神昇華的養分"],
+                    "zh-Hans": ["隔天立刻开启更高强度的常规重训，用行动击碎失败", "彻夜覆盘战术，找出系统在关键时刻的逻辑裂缝", "回到家人与挚友身边倾诉，寻求安静的慰藉与温暖", "拥抱这份缺憾的美感，将痛楚转化为精神升华的养分"],
+                    "en": ["Hit the gym harder next morning to crush failure", "Stay up analyzing tactical loops and systemic errors", "Talk and find quiet warmth with close family and peers", "Embrace this regret, converting pain into spiritual power"]
+                },
+                weight: ["T", "T", "F", "F"]
+            },
+            {
+                q: { "zh-Hant": "足球這項運動對你而言，最核心的意義是？", "zh-Hans": "足球这项运动对你而言，最核心的意义是？", "en": "What is the ultimate meaning of football to you?" },
+                options: {
+                    "zh-Hant": ["一場關乎自律、效率與個人極限的偉大征服", "一個需要不斷尋求戰術體系最優解的精密科學", "一條連繫全人類謙遜與愛的情感紐帶", "一場燃燒熱愛、展現靈魂高貴與純粹的動態藝術"],
+                    "zh-Hans": ["一场关乎自律、效率与个人极限的伟大征服", "一个需要不断寻求战术体系最优解的精密科学", "一条连系全人类谦逊与爱的情感纽带", "一场燃烧热爱、展现灵魂高贵与纯粹的动态艺术"],
+                    "en": ["A war of personal limits, efficiency, and absolute conquest", "A precise science requiring optimization of tactics", "A warm emotional bond connecting humanity with humility", "A high-level art displaying noble souls and pure faith"]
+                },
+                weight: ["T", "T", "F", "F"]
+            },
+
+            // === J / P 維度（共 5 題）===
+            {
+                q: { "zh-Hant": "主教練因病缺席，球隊需要有人主持大局，你會？", "zh-Hans": "主教练因病缺席，球队需要有人主持大局，你会？", "en": "Manager is out sick and someone needs to lead. You:" },
+                options: {
+                    "zh-Hant": ["嚴明更衣室紀律，按原定作息與戰術嚴格執行", "重新優化未來的訓練時間表與體系框架", "安撫隊友緊繃情緒，根據實時情況溫柔協調", "鼓勵大家卸下思想包袱，跟隨心靈直覺即興發揮"],
+                    "zh-Hans": ["严明更衣室纪律，按原定作息与战术严格执行", "重新优化未来的训练时间表与体系框架", "安抚队友紧绷情绪，根据实时情况温柔协调", "鼓励大家卸下思想包袱，跟随心灵直觉即兴发挥"],
+                    "en": ["Enforce locker room discipline, strictly execute setups", "Re-optimize the training schedule and systemic layout", "Soothe teammate anxiety and coordinate gently in real-time", "Urge peers to let loose and play on pure inner instinct"]
+                },
+                weight: ["J", "J", "P", "P"]
+            },
+            {
+                q: { "zh-Hant": "如果有人惡意鏟球讓你受傷，重返賽場後？", "zh-Hans": "如果有人恶意铲球让你受伤，重返赛场后？", "en": "After a malicious tackle injures you, you return to play:" },
+                options: {
+                    "zh-Hant": ["在合理的戰術框架內，用更強悍的防守與進球碾壓他", "理性規劃每次對抗，不因個人恩怨打亂系統節奏", "保持寬容，這只是足球競技中必然的一部分", "變得更為優雅且隨性，在無法被捉摸的靈活中帶領大家"],
+                    "zh-Hans": ["在合理的战术框架内，用更强悍的防守与进球压他", "理性规划每次对抗，不因个人恩怨打乱系统节奏", "保持宽容，这只是足球竞技中必然的一部分", "变得更为优雅且随性，在无法被捉摸的灵活中带领大家"],
+                    "en": ["Crush them with tighter defense and stats in systems", "Stick to assignment routines, unbothered by bad blood", "Keep forgiving; it is part of the beautiful game", "Play more gracefully and fluidly on flexible intuition"]
                 },
                 weight: ["J", "J", "P", "P"]
             },
             {
                 q: { "zh-Hant": "隊友在球場上因為失誤發生激烈爭吵時，你會？", "zh-Hans": "队友在球场上因为失误发生激烈争吵时，你会？", "en": "When teammates argue on the pitch over a mistake, you:" },
                 options: {
-                    "zh-Hant": ["嚴厲喝止，重申隊長權威，要求全體立刻各就各位", "明確指出是誰犯了錯、誰該補位，給出理性的對錯判斷", "充當和事佬拍拍雙方，順其自然地把話題帶過", "完全無視爭吵，相信比賽節奏推進後他們自己會解決"],
-                    "zh-Hans": ["严厉喝止，重申队长权威，要求全体立刻各就各位", "明确指出是谁犯了错、谁该补位，给出理性的对错判断", "充当和事佬拍拍双方，顺其自然地把话题带过", "完全忽视争吵，相信比赛节奏推进后他们自己会解决"],
-                    "en": ["Stop it sternly, command order, and tell them to reset", "Point out exactly who missed the assignment and how to fix it", "Act as a casual peacemaker, laughing it off smoothly", "Ignore it completely and let the flow of the game fix it"]
+                    "zh-Hant": ["嚴厲喝止，要求所有人立刻各就各位回到職責", "指出具體是誰犯了錯，理性給出優化的跑位建議", "充當溫和的和事佬，告訴大家沒事、都是兄弟", "完全無視這場爭拗，專注於腳下靈性的傳切"],
+                    "zh-Hans": ["严厉喝止，要求所有人立刻各就各位回到职责", "指出具体是谁犯了错，理性给出优化的跑位建议", "充当温和的和事佬，告诉大家没事、都是兄弟", "完全忽视这场争拗，专注于脚下灵性的传切"],
+                    "en": ["Stop them sternly, command everyone back to assignments", "Judge fairly who missed the spot, offering logical setup", "Act as a casual peacemaker, laughing it off smoothly", "Ignore the debate, focusing on creative touches dynamically"]
                 },
                 weight: ["J", "J", "P", "P"]
             },
             {
                 q: { "zh-Hant": "如果你是球隊主教練，你挑選隊員時最看重？", "zh-Hans": "如果你是球队主教练，你挑选队员时最看重？", "en": "As a manager, you value a player's:" },
                 options: {
-                    "zh-Hant": ["絕對的服從性、戰術紀律與鋼鐵般的執行力", "對戰術板細節的理解與日復一日穩定的高標準表現", "在死局中打破常規的解題創造力與臨場靈感", "面對混亂局面的極高適應力與多元靈活度"],
-                    "zh-Hans": ["绝对的服从性、战术纪律与钢铁般的执行力", "对战术板细节的理解与日复一日稳定的高标准表现", "在死局中打破常规的解题创造力与临场灵感", "面对混乱局面的极高适应力与多元灵活度"],
-                    "en": ["Absolute obedience, tactical discipline, and iron execution", "Deep understanding of setups and day-to-day consistency", "Out-of-the-box creativity to break stalemates on intuition", "High adaptability and versatility to thrive in chaotic plays"]
+                    "zh-Hant": ["絕對的服從紀律、鋼鐵意志與高強度的執行力", "對戰術板細節的深度解析與長年穩定的超高標準", "對團隊利益無私奉獻、謙遜樸實的溫和性格", "在死局中打破既定常規的解題創造力與純粹天賦"],
+                    "zh-Hans": ["绝对的服从纪律、钢铁意志与高强度的执行力", "对战术板细节的深度解析与长年稳定的超高标准", "对团队利益无私奉献、谦逊朴实的温和性格", "在死局中打破既定常规的解题创造力与纯粹天赋"],
+                    "en": ["Absolute discipline, iron will, and high execution", "Deep understanding of setups and day-to-day consistency", "Selfless work rate, humility, and warm team synergy", "Creative out-of-the-box answers and pure gift in stalemates"]
                 },
                 weight: ["J", "J", "P", "P"]
             },
             {
                 q: { "zh-Hant": "你更希望以何種方式為自己的職業生涯華麗謝幕？", "zh-Hans": "你更希望以何种方式为自己的职业生涯华丽谢幕？", "en": "How do you want your career to end?" },
                 options: {
-                    "zh-Hant": ["在很久以前就規劃好的巔峰年齡與特定球季完美退役", "終生只效力一隻挚愛母隊，完成一生一隊的歷史篇章", "隨心所欲，合約到哪就去未知的全新聯賽繼續冒險試試", "不設任何限制，直到身體哪天真的踢不動了再隨緣停下"],
-                    "zh-Hans": ["在很久以前就规划好的巅峰年龄与特定球季完美退役", "终生只效力一只挚爱母队，完成一生一队的历史篇章", "随心所欲，合约到哪就去未知的全新联赛继续冒险试试", "不设任何限制，直到身体哪天真的踢不动了再随缘停下"],
-                    "en": ["Retire exactly at the peak year you planned long ago", "Stay at your boyhood club for life, closing a set legacy", "Follow your gut; jump to exotic leagues as opportunities pop up", "Set no limits; play until your body stops, letting nature decide"]
+                    "zh-Hant": ["在很久以前就規劃好的巔峰年齡和賽季完美退役", "終生只效力一隻最愛的母隊，完成一生一隊的歷史", "落葉歸根，回到家鄉基層，溫馨而低調地退居幕後", "不設任何框架，踢到靈魂不想踢的那一刻隨緣退役"],
+                    "zh-Hans": ["在很久以前就规划好的巅峰年龄和赛季完美退役", "终生只效力一只最爱的母队，完成一生一队的历史", "落叶归根，回到家乡基层，温馨而低调地退居幕后", "不设任何框架，踢到灵魂不想踢的那一刻随缘退役"],
+                    "en": ["Retire at the exact peak season planned long ago", "Play for your boyhood club only, sealing a lifetime story", "return to hometown grass to quietly support kids", "Set no limits, play until your soul says stop flexibly"]
                 },
                 weight: ["J", "J", "P", "P"]
             }
         ];
 
-        // 16 位球星 MBTI 深度數據庫
-        // 已經核對所有圖片檔名，100% 吻合你給的 16 張 png 檔
+        // 16 位球星 統一多語言資料庫
         const starsData = {
+            "ESTJ": { 
+                name: { "zh-Hant": "基斯坦奴 · 朗拿度", "zh-Hans": "克里斯蒂亚诺 · 罗纳尔多", "en": "C. Ronaldo" },
+                role: { "zh-Hant": "鐵血統帥", "zh-Hans": "铁血统帅", "en": "The Executive" },
+                pos: { "zh-Hant": "致命終結者", "zh-Hans": "致命终结者", "en": "Lethal Finisher" },
+                val: { "zh-Hant": "極致自律，超越極限", "zh-Hans": "极致自律，超越极限", "en": "Extreme Discipline" },
+                img: "CristianoRonaldo.png",
+                why: {
+                    "zh-Hant": "你與 C 朗（ESTJ）擁有完全一致的鐵血代碼：高執行、強紀律、不畏衝突且勝負欲極強。你將自律視為生存的盔甲。",
+                    "zh-Hans": "你与 C 罗（ESTJ）拥有完全一致的铁血代码：高执行、强纪律、不畏冲突且胜负欲极强。你将自律视为生存的盔甲。",
+                    "en": "You share a soul frequency with CR7: high execution, strict discipline, competitive drive, and unshakeable focus."
+                },
+                traits: {
+                    "zh-Hant": "【內在動機與大局觀】：\n你擁有鋼鐵般的意志力與極強的目標導向。對你而言，平庸與懶惰是一種罪。你習慣用最高的標準要求自己，也同樣要求世界，在團隊中，你是最有力、最可靠的火車頭。\n\n【社交模式與心靈世界】：\n你直率、務實，雖然有時在同伴眼裡顯得過於嚴苛，但那源於你對細節的專注以及想帶領大家一起走向勝利的使命感。你的強大氣場來自於對自我的絕對掌控。\n\n【壓力轉化機制】：\n極端的高壓與外界的質疑，對你而言都是轉化為前進能量的燃料。你用數據說話，在最關鍵的瞬間，展現出無懈可擊的門前終結，用實力讓所有反對者閉嘴。",
+                    "zh-Hans": "【内在动机与大局观】：\n你拥有钢铁般的意志力与极强的目标导向。对你而言，平庸与懒惰是一种罪。你习惯用最高的标准要求自己，也同样要求世界，在团队中，你是最有力、最可靠的火车头。\n\n【社交模式与心灵世界】：\n你直率、务实，虽然有时在同伴眼里显得过于严苛，但那源于你对细节的专注以及想带领大家一起走向胜利的使命感。你的强大气场来自于对自我绝对掌控。\n\n【压力转化机制】：\n极端的高压与外界的质疑，对你而言都是转化为前进能量的燃料。你用数据说话，在最关键的瞬间，展现出无可挑剔的门前终结，用实力让所有反对者闭嘴。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou possess immense willpower and goal orientation, making you a natural pioneer. To you, life is a precise schedule; mediocrity and laziness are sins. You always desire to stand at the peak and lead.\n\n★ [Social & Inner World]:\nYou are blunt, practical, and highly value structure and rules. Though you may appear strict or tense to others, it is only because you see the finish line clearer and want to bring everyone to victory.\n\n★ [Handling Pressure]:\nIn adversity and under heavy skepticism, you don't break but convert pressure into fuel. Pressure sharpens your nerves, bringing out unparalleled dominance. The higher the pressure, the more extreme and flawless your execution."
+                },
+                advice: {
+                    "zh-Hant": "接受同伴的不完美，有時一點溫柔的容錯空間會讓你的統帥魅力更強大。",
+                    "zh-Hans": "接受同伴的不完美，有时一点温柔的容错空间会让你的统帅魅力更强大。",
+                    "en": "Accepting your peers' imperfections will make your leadership more powerful."
+                }
+            },
+            "INTJ": { 
+                name: { "zh-Hant": "哥迪奧拿", "zh-Hans": "瓜迪奥拉", "en": "Pep Guardiola" },
+                role: { "zh-Hant": "頂級戰略家", "zh-Hans": "顶级战略家", "en": "The Strategist" },
+                pos: { "zh-Hant": "戰術司令塔", "zh-Hans": "战术司令塔", "en": "Tactical Master" },
+                val: { "zh-Hant": "重構未來的系統", "zh-Hans": "重构未来的系统", "en": "Reconstruct the System" },
+                img: "PepGuardiola.png",
+                why: {
+                    "zh-Hant": "你將足球與生活視為精密的幾何戰略。你冷靜、理性，總是領先於時代，用超越維度的邏輯建立完美系統。",
+                    "zh-Hans": "你将足球与生活视为精密的几何战略。你冷静、理性，总是领先于时代，用超越维度的逻辑建立完美系统。",
+                    "en": "You see football as geometric logic. Calm and analytical, you stay steps ahead of others to form ideal strategic plans."
+                },
+                traits: {
+                    "zh-Hant": "【內在動機與大局觀】：\n你是萬中無一的「系統重構者」。你並不活在當下，你活在未來。現有的體系在你眼裡滿是漏洞，你的使命就是推翻混亂、用極致精密的邏輯建立完美的運作鏈條。\n\n【社交模式與心靈世界】：\n你獨立、深邃，討厭任何無效的虛禮與低智對話。在他人眼裡你可能顯得傲慢與孤獨，但那是因為你大腦中正飛速演算著未來三步的沙盤推演，冷靜地重構對手防線的秩序。\n\n【壓力轉化機制】：\n高壓會讓你進入「極致運算」狀態。你會用遠見頂住所有的偏見，用精準到公分的戰術安排，建立震驚世界的傳控帝國。你不是在參與競賽，你是在重塑規則。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是万中无一的“系统重构者”。你并不活在当下，你活在未来。现有的体系在你眼里满是漏洞，你的使命就是推翻混乱、用极致精密的逻辑建立完美的运作链条。\n\n【社交模式与心灵世界】：\n你独立、深邃，讨厌任何无效的虚礼与低智对话。在他人眼里你可能显得傲慢与孤独，但那是因为你大脑中正飞速演算着未来三步的沙盘推演，冷静地重构对手防线的秩序。\n\n【压力转化机制】：\n高压会让你进入“极致运算”状态。你会用远见顶住所有的偏见，用精准到公分的战术安排，建立震惊世界的传控帝国。你不是在参与竞赛，你是在重塑规则。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou are a natural 'System Architect'. You live in the future. To you, current systems are flawed, and your mission is to demolish the chaos, building logic chains of peak precision.\n\n★ [Social & Inner World]:\nYou are independent, highly rational, and sometimes seen as cold or lonely. You despise useless rituals, preferring raw intellectual alignment. You watch quietly, having calculated all future moves.\n\n★ [Handling Pressure]:\nHigh pressure turns your brain into a calculation frenzy. You obsess over data and tactical setups, trying to control even human variables. Driven by vision, you withstand criticism to install revolutionary orders."
+                },
+                advice: {
+                    "zh-Hant": "完美的系統終究需要不完美的人性來運作，對身邊人適度溫柔會更好。",
+                    "zh-Hans": "完美的系统终究需要不完美的人性来运作，对身边人适度温柔会更好。",
+                    "en": "Perfect systems need imperfect humanity to operate; be gentle with others."
+                }
+            },
+            "ISFJ": { 
+                name: { "zh-Hant": "美斯", "zh-Hans": "梅西", "en": "Lionel Messi" },
+                role: { "zh-Hant": "沈默的基石 · 守護者", "zh-Hans": "沉默的基石 · 守护者", "en": "The Silent Guardian" },
+                pos: { "zh-Hant": "進攻發動機", "zh-Hans": "进攻发动机", "en": "Attack Engine" },
+                val: { "zh-Hant": "忠誠與謙遜", "zh-Hans": "忠诚与谦逊", "en": "Loyalty & Humility" },
+                img: "LionelMessi.png",
+                why: {
+                    "zh-Hant": "美斯一生專注、內斂、忠於家庭與球隊。用最謙遜的姿態展現最偉大的天賦，這就是完美守護者的寫照。",
+                    "zh-Hans": "梅西一生专注、内敛、忠于家庭与球队。用最谦逊的姿态展现最伟大的天赋，这就是完美守护者的写照。",
+                    "en": "Messi is focused, introverted, and loyal. He displays immense talent with unparalleled humility."
+                },
+                traits: {
+                    "zh-Hant": "【內在動機與大局觀】：\n你是一位沈默卻無比堅實的「幕後英雄」。你天性謙遜、勤勉，且對你所關愛的人或組織擁有一種近乎信仰的忠誠度。你更傾向於用經年累月的行動來證明你的價值。\n\n【社交模式與心靈世界】：\n你擁有驚人的記憶力與對細節的感知力，這讓你總能在關鍵時刻精準地穩定大局。你不喜歡成為聚光燈下的談資，更願意在安靜中守護好心愛的人。你承擔著巨大的責任，卻往往將功勞歸於集體。\n\n【面對壓力的轉化機制】：\n在極端壓力下，你可能會陷入輕微的情緒化，覺得自己付出了所有卻沒被看見。但只要戰鼓一響，你依然會為了對身邊人與承諾的愛，爆發出前所未有的專注力。你用沈默與堅持構築了屬於你的偉大。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是一位沉默却无比坚实的“幕后英雄”。你天性谦逊、勤奋，且对你所关爱的人或组织拥有一种近乎信仰的忠诚度。你更倾向于用经年累月的行动来证明你的价值。\n\n【社交模式与心灵世界】：\n你拥有惊人的记忆力与对细节的感知力，这让你总能在关键时刻精准地稳定大局。你不喜欢成为聚光灯下的谈资，更愿意在安静中守护好心爱的人。你承担着巨大的责任，却往往将功劳归于集体。\n\n【面对压力的转化机制】：\n在极端压力下，你可能会陷入轻微的情绪化，觉得自己付出了所有却没被看见。但只要战鼓一响，你依然会为了对身边人与承诺的爱，爆发前所未有的专注力。你用沉默与坚持构筑了属于你的伟大。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou are a silent but solid 'Unsung Hero'. Naturally humble and diligent, your loyalty to loved ones is like a faith.\n\n★ [Social & Inner World]:\nProtecting those around you and fulfilling your calling. Your acute perception stabilizes the situation during crises. You prefer action over talk.\n\n★ [Handling Pressure]:\nYou bear immense responsibility but give credit to the collective. Though you may feel overlooked under pressure, love keeps you grounded. You build greatness through silence."
+                },
+                advice: {
+                    "zh-Hant": "你的價值並不全然依附於他人的認可，請試著看見你自己本身就是奇蹟。",
+                    "zh-Hans": "你的价值并不全然依附于他人的认可，请试着看见你自己本身就是奇迹。",
+                    "en": "Your value isn't attached to others' validation; see yourself as a miracle."
+                }
+            },
+            "INFP": { 
+                name: { "zh-Hant": "卡卡", "zh-Hans": "卡卡", "en": "Kaka" },
+                role: { "zh-Hant": "虔誠的騎士 · 理想主義者", "zh-Hans": "虔诚的骑士 · 理想主义者", "en": "The Devout Knight" },
+                pos: { "zh-Hant": "前腰核心", "zh-Hans": "前腰核心", "en": "Attacking Midfielder" },
+                val: { "zh-Hant": "純潔的熱愛與救贖的信仰", "zh-Hans": "纯洁的热爱与救赎的信仰", "en": "Pure Faith & Salvation" },
+                img: "Kaka.png",
+                why: {
+                    "zh-Hant": "卡卡那如追風少年般純潔優雅、虔誠且將生命與足球奉獻給信仰的風骨，是 INFP 理想主義與內在純真感應的縮影。",
+                    "zh-Hans": "卡卡那如追风少年般纯洁优雅、虔诚且将生命与足球奉献给信仰的风骨，是 INFP 理想主义与内在纯真感应的缩影。",
+                    "en": "Kaka's wind-like speed and dedication to faith perfectly represent INFP's moral idealism and inner purity."
+                },
+                traits: {
+                    "zh-Hant": "【內在動機與大局觀】：\n你是一個「追尋靈魂純度」的理想主義者。你內心擁有一套無瑕的價值標準，你做出的每個選擇，不僅是為了世俗的成功，更是為了實踐心中的「信念與善良」。對於你來說，精神世界的豐富遠勝於外在名利的累積。\n\n【社交模式與心靈世界】：\n你溫柔、謙和、極具同理心，散發著一種超越塵世喧囂的純淨美感。你對人性的真誠有著極高的追求，無法忍受算計與虛偽。你默默扮演著心靈守護者的角色，給予身邊人強大的精神支撐。\n\n【面對壓力的轉化機制】：\n在世俗的功利與混亂的高壓中，你不會被同化，反而會讓你的信念更加閃耀。壓力對你而言是靈魂的洗禮，你能在黑暗與混亂中堅守燈塔般的光芒，用超越常人的意志，跑出最優雅的軌跡。你奔跑時，不僅是為了榮譽，更是為了信仰。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是一个“追寻灵魂纯度”的理想主义者。你内心拥有一套无瑕的价值标准，你做出的每个选择，不仅是为了世俗的成功，更是为了实践心中的“信念与善良”。对于你来说，精神世界的丰富远胜于外在名利的累积。\n\n【社交模式与心灵世界】：\n你温柔、谦和、极具同理心，散发着一种超越尘世喧嚣的纯净美感。你对人性的真诚有着极高的追求，无法忍受算计与虚伪。你默默扮演着心灵守护者的角色，给予身边人强大的精神支撑。\n\n【面对压力的转化机制】：\n在世俗的功利与混乱的高压中，你不会被同化，反而会让你的信念更加闪耀。压力对你而言是灵魂的洗礼，你能在黑暗与混乱中坚守灯塔般的光芒，用超越常人的意志，跑出最优雅的轨迹。你奔跑时，不仅是为了荣誉，更是为了信仰。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou are an idealist chasing 'purity of soul'. You hold a flawless moral compass, making moves not just for worldly acclaim, but to fulfill inner faith and goodness.\n\n★ [Social & Inner World]:\nYou are gentle, highly empathetic, radiating a quiet grace that transcends worldly noise. Craving pure, honest relationships, you act as a silent guardian, providing vast spiritual shielding.\n\n★ [Handling Pressure]:\nIn extreme pressure, you maintain your core values and light up others. Pressure is a spiritual baptism for you, allowing you to run with an elegant grace to rescue the game."
+                },
+                advice: {
+                    "zh-Hant": "保持你的善良與光芒，這個複雜混沌的世界，需要你這道溫柔且不妥協的光指引方向。",
+                    "zh-Hans": "保持你的善良与光芒，这个复杂混沌的世界，需要你这道温柔且不妥协的光指引方向。",
+                    "en": "Hold your goodness; this complex world needs your gentle, uncompromising guidance."
+                }
+            },
             "ISTJ": {
                 name: { "zh-Hant": "施丹", "zh-Hans": "齐达内", "en": "Zidane" },
                 role: { "zh-Hant": "古典藝術大師 · 秩序守護者", "zh-Hans": "古典艺术大师 · 秩序守护者", "en": "Classic Art Master" },
-                img: "ZinedineZidane.png",
                 pos: { "zh-Hant": "中場大腦", "zh-Hans": "中场大脑", "en": "Midfield Maestro" },
                 val: { "zh-Hant": "責任與精密", "zh-Hans": "责任与精密", "en": "Duty & Precision" },
+                img: "ZinedineZidane.png",
                 why: { 
                     "zh-Hant": "你與施丹（ISTJ）擁有相同的靈魂頻率：安靜、內斂、穩健，對規則與細節有著極度的堅持與完美的打磨，在混亂的世界中，習慣建立牢不可破的秩序。",
                     "zh-Hans": "你与齐达内（ISTJ）拥有相同的灵魂频率：安静、内敛、稳健，对规则与细节有着极度的坚持与完美的打磨，在混乱的世界中，习惯建立牢不可破的秩序。",
@@ -462,35 +590,21 @@
                 },
                 traits: {
                     "zh-Hant": "【內在動機與大局觀】：\n你追求的是一種「絕對的掌控與責任感」。你做事深思熟慮，不打無準備之仗，比起華而不實的噱頭，你更深信一步一腳印的耕耘。在團隊中，你往往扮演秩序與體系的核心。\n\n【社交模式與心靈世界】：\n你並不渴望成為聚光燈下的戲精，但你承擔的責任是你自我存在感的泉源。你重視承諾，待人忠誠守信，雖然在外人眼裡略顯沈默，但了解你的人都知道，你是一座值得托付一切的穩固大山。\n\n【面對壓力的轉化機制】：\n當身處極端的高壓環境，你不會輕易慌亂，而是會將內在情感收斂為冰冷的理性。你敏銳的感知力會將壓力轉化為對戰術與執行細節近乎偏執的精準執行，在最關鍵的瞬間，用優雅且無可挑剔的技術穩定局勢。",
-                    "zh-Hans": "【内在动机与大局观】：\n你追求的是一种“绝对的掌控与责任感”。你做事深思熟虑，不打无准备之仗，比起华而不实的噱头，你更深信一步一脚印的耕耘。在团队中，你往往扮演秩序与体系的核心。\n\n【社交模式与心灵世界】：\n你并不渴望成为聚光灯下的戏精，但你承担的责任是你自我存在感的泉源。你重视承诺，待人忠诚守信，虽然在外人眼里略显沉默，但了解你的人都知道，你是一座值得托付一切的稳固大山。\n\n【面对压力的转化机制】：\n当身处极端的高压环境，你不会轻易慌乱，而是会将内在情感收敛为冰冷的理性。你敏锐的感知力会将压力转化为对战术与执行细节近乎偏执的精准执行，在最关键的瞬间，用优雅且无可挑剔的技术稳定局势。",
+                    "zh-Hans": "【内在动机与大局观】：\n你追求的是一种“绝对的掌控与责任感”。你做事深思熟虑，不打无准备之仗，比起华而不实的噱头，你更深信一步一脚印的耕耘。在团队中，你往往扮演秩序与体系的核心。\n\n【社交模式与心灵世界】：\n你并不渴望成为聚光灯下的戏精，但你承担的责任是你自我存在感的泉源。你重视承诺，待人忠诚守信，虽然在外人眼里略显沉默，但了解你的人都知道，你是一座值得托付一切的稳固大山。\n\n【面对压力的转化机制】：\n当身处极端的高压环境，你不会轻易荒乱，而是会将内在情感收敛为冰冷的理性。你敏锐的感知力会将压力转化为对战术与执行细节近乎偏执的精准执行，在最关键的瞬间，用优雅且无可挑剔的技术稳定局势。",
                     "en": "★ [Internal Motivation & Vision]:\nYou seek absolute control and responsibility. You are thoughtful, avoiding unprepared battles, and believe in steady work over flashy gimmicks. You serve as the core of order and systems in teams.\n\n★ [Social & Inner World]:\nYou don't crave the spotlight, but the responsibilities you carry are the source of your existence. You value promises and display loyalty. Silent externally, you are a mountain of reliability to those who know you.\n\n★ [Handling Pressure]:\nIn extreme high pressure, you don't panic but convert inner emotions into cool logic. You focus relentlessly on tactical and execution details, stabilizing the team with flawless skill in crucial moments."
                 },
-                advice: { "zh-Hant": "適度的感性與放鬆不會毀滅秩序，反而能讓你的藝術更完整。", "zh-Hans": "适度的感性与放松不会毁灭秩序，反而能让你的艺术更完整。", "en": "Occasional emotion and relaxation won't destroy order; they complete your art." }
-            },
-            "ESTJ": {
-                name: { "zh-Hant": "基斯坦奴 · 朗拿度", "zh-Hans": "克里斯蒂亚诺 · 罗纳尔多", "en": "C. Ronaldo" },
-                role: { "zh-Hant": "意志的帝王 · 鐵血統帥", "zh-Hans": "意志的帝王 · 铁血统帅", "en": "Monarch of Will · Commander" },
-                img: "CristianoRonaldo.png",
-                pos: { "zh-Hant": "致命前鋒", "zh-Hans": "致命前锋", "en": "Fatal Finisher" },
-                val: { "zh-Hant": "極致自律，超越極限", "zh-Hans": "极致自律，超越极限", "en": "Extreme Discipline" },
-                why: { 
-                    "zh-Hant": "你與 C 朗（ESTJ）一樣，將「自律」與「執行力」視為通往成功的唯一門票。你不相信平庸與運氣，只相信目標、計劃與汗水。",
-                    "zh-Hans": "你与 C 罗（ESTJ）一样，将“自律”与“执行力”视为通往成功的唯一门票。你不相信平庸与运气，只相信目标、计划与汗水。",
-                    "en": "You and Ronaldo share the same belief: 'Discipline' and 'Execution' are the only tickets to success. You do not believe in luck, only in goals, planning, and sweat."
-                },
-                traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你擁有強大無比的意志力與目標感，是天生的開路先鋒。對你而言，生活就是一張精密的目標日程表，不進則退，平庸與懶惰對你來說是一種罪惡。你總是渴望站在巔峰，帶領團隊攻城掠地。\n\n【社交模式與心靈世界】：\n你直率、務實、賞罰分明。你重視團隊結構與客觀公正的規則，雖然有時在同伴眼裡顯得有些嚴苛與緊繃，但那是因為你比任何人都看得見終點線，你想帶著大家一起見證勝利的榮耀。\n\n【面對壓力的轉化機制】：\n在逆境與排山倒海的質疑聲中，你不但不會被壓垮，反而會將其轉化為瘋狂前進的燃料。壓力會讓你的神經完全緊繃，爆發出前所未有的統治力與執行力。你在壓力越大時，表現往往越發極致，是用實力堵住所有質疑的硬漢。",
-                    "zh-Hans": "【内在动机与大局观】：\n你拥有强大无比的意志力与目标感，是天生的开路先锋。对你而言，生活就是一张精密的目标日程表，不进则退，平庸与懒惰对你来说是一种罪恶。你总是渴望站在巅峰，带领团队攻城掠地。\n\n【社交模式与心灵世界】：\n你直率、务实、赏罚分明。你重视团队结构与客观公正的规则，虽然有时在同伴眼里显得有些严苛与紧绷，但那是因为你比任何人都看得见终点线，你想带着大家一起见证胜利的荣耀。\n\n【面对压力的转化机制】：\n在逆境与排山倒海的质疑声中，你不但不会被压垮，反而会将其转化为疯狂前进的燃料。压力会让你的神经完全紧绷，爆发前所未有的统治力与执行力。你在压力越大时，表现往往越发极致，是用实力堵住所有质疑的硬汉。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou possess immense willpower and goal orientation, making you a natural pioneer. To you, life is a precise schedule; mediocrity and laziness are sins. You always desire to stand at the peak and lead.\n\n★ [Social & Inner World]:\nYou are blunt, practical, and highly value structure and rules. Though you may appear strict or tense to others, it is only because you see the finish line clearer and want to bring everyone to victory.\n\n★ [Handling Pressure]:\nIn adversity and under heavy skepticism, you don't break but convert pressure into fuel. Pressure sharpens your nerves, bringing out unparalleled dominance. The higher the pressure, the more extreme and flawless your execution."
-                },
-                advice: { "zh-Hant": "學會擁抱過程中的不確定性，偶爾給隊友一點試錯的空間，會讓你的團隊更有生命力。", "zh-Hans": "学会拥抱过程中的不确定性，偶尔给队友一点试错的空间，会让你的团队更有生命力。", "en": "Learn to embrace uncertainty and allow room for others to make mistakes to give your team more vitality." }
+                advice: {
+                    "zh-Hant": "適度的感性與放鬆不會毀滅秩序，反而能讓你的藝術更完整。",
+                    "zh-Hans": "适度的感性与放松不会毁灭秩序，反而能让你的艺术更完整。",
+                    "en": "Occasional emotion and relaxation won't destroy order; they complete your art."
+                }
             },
             "ISFP": {
                 name: { "zh-Hant": "尼馬", "zh-Hans": "内马尔", "en": "Neymar" },
                 role: { "zh-Hant": "自由的精靈 · 綠茵藝術家", "zh-Hans": "自由的精灵 · 绿茵艺术家", "en": "Free Spirit · Pitch Artist" },
-                img: "Neymar.png",
                 pos: { "zh-Hant": "邊路尖刀", "zh-Hans": "边路尖刀", "en": "Creative Winger" },
                 val: { "zh-Hant": "活在熱情的當下", "zh-Hans": "活在热情的当下", "en": "Live the Passion" },
+                img: "Neymar.png",
                 why: { 
                     "zh-Hant": "尼馬那靈動、隨興且極具想像力的過人技巧，是 ISFP 對當下美學與真實自我情感表達的極致寫照。",
                     "zh-Hans": "内马尔那灵动、随兴且极具想象力的过人技巧，是 ISFP 对当下美学与真实自我情感表达的极致写照。",
@@ -498,17 +612,21 @@
                 },
                 traits: {
                     "zh-Hant": "【內在動機與大局觀】：\n你擁有一顆敏感、追求純粹自由與美感的心。對你而言，生活是一場即興的藝術創作，而非刻板僵化的戰術計劃。當你感到心情愉悅、沒有束縛時，你的創造力與天賦將達到巔峰，無人能敵。\n\n【社交模式與心靈世界】：\n你低調、溫和，甚至在某些人眼裡略顯慵懶，但你內心對情感有著極高的敏銳度。你非常在乎同伴與朋友之間的真實默契，不喜歡虛浮世俗的條條框框。在你的世界裡，真性情遠高於名利與職位的裝飾。\n\n【面對壓力的轉化機制】：\n在極度的壓抑與被誤解的環境中，你的靈感可能會枯竭。然而，當你把壓力視為一場狂歡、將重心放回到「當下」的遊戲本質時，你就能在綠茵場上跳起最華麗的桑巴舞。你用美學與靈性治癒一切規則的枯燥。",
-                    "zh-Hans": "【内在动机与大局观】：\n你拥有一颗敏感、追求纯粹自由与美感的心。对你而言，生活是一场即兴的艺术创作，而非刻板僵化的战术计划。当你感到心情愉悦、没有束缚时，你的创造力与天赋将达到巅峰，无人能敌。\n\n【社交模式与心灵世界】：\n你低调、温和，甚至在某些人眼里略显慵懒，但你内心对情感有着极高的敏锐度。你非常在乎同伴与朋友之间的真实默契，不喜欢虚浮世俗的条条框框。在你的世界里，真性情远高于名利与职位的装饰。\n\n【面对压力的转化机制】：\n在极度的压抑与被误解的环境中，你的灵感可能会枯竭。然而，当你把压力视为一场狂欢、将重心放回到“当下”的游戏本质时，你就能在绿茵场上跳起最华丽的桑巴舞。你用美学与灵性治愈一切规则的枯燥。",
+                    "zh-Hans": "【内在动机与大局观】：\n你拥有一颗敏感、追求纯粹自由与美感的心。对你而言，生活是一场即兴的艺术创作，而非刻板僵化的战术计划。当你感到心情愉悦、没有束缚时，你的创造力与天赋将达到巅峰，无人能敌。\n\n【社交模式与心灵世界】：\n你低调、温和，甚至在某些人眼里略显慵懒，但你内心对情感有着极高的敏锐度。你非常在乎同伴与朋友之间的真实默契，不喜欢虚浮世俗的条条框框。在你的世界里，真性情远高于名利与职位的装饰。\n\n【面对压力的转化机制】：\n在极度的压抑与被误解的环境中，你的灵感可能会枯竭。然而，当你把压力视为一场狂欢、将重心放回到“当下”的游戏本质时，你就能在绿茵场上跳起最华丽的桑巴舞。你用美学与灵性治愈一切规燥的枯燥。",
                     "en": "★ [Internal Motivation & Vision]:\nYou possess a sensitive soul that craves freedom and beauty. Life is an improvised creation rather than a rigid plan. When you feel joyful and unconstrained, your creativity rises to its peak.\n\n★ [Social & Inner World]:\nYou are gentle, quiet, and sometimes seem laidback, but have high emotional sensitivity. You value genuine chemistry with peers, discarding superficial regulations. Authenticity is far superior to status.\n\n★ [Handling Pressure]:\nIn highly oppressive or misunderstood environments, your inspiration might dry up. However, if you treat pressure as a playground and refocus on the 'game itself', you display dazzling magic on the pitch."
                 },
-                advice: { "zh-Hant": "過濾外界的惡意雜音，為自己靈魂內在的熱愛而戰，你會發現純粹的快樂才是你最強的護城河。", "zh-Hans": "过滤外界的恶意杂音，为自己灵魂内在的热爱而战，你会发现纯粹的快乐才是你最强的护城河。", "en": "Filter out toxic external noise and play for your inner love; you will realize pure joy is your strongest fortress." }
+                advice: {
+                    "zh-Hant": "過濾外界的惡意雜音，為自己靈魂內在的熱愛而戰，你會發現純粹的快樂才是你最強的護城河。",
+                    "zh-Hans": "过滤外界的恶意杂音，为自己灵魂内在的热爱而战，你会发现纯粹的快乐才是你最强的护城河。",
+                    "en": "Filter out toxic external noise and play for your inner love; you will realize pure joy is your strongest fortress."
+                }
             },
             "INTP": {
                 name: { "zh-Hant": "奇雲 · 迪布尼", "zh-Hans": "凯文 · 德布劳内", "en": "De Bruyne" },
                 role: { "zh-Hant": "冷靜的分析師 · 邏輯建築師", "zh-Hans": "冷静的分析师 · 逻辑建筑师", "en": "Locker Room Genius" },
-                img: "KevinDeBruyne.png",
                 pos: { "zh-Hant": "中場發動機", "zh-Hans": "中场发动机", "en": "Advanced Playmaker" },
                 val: { "zh-Hant": "數據與邏輯的精確解法", "zh-Hans": "数据与逻辑的精确解法", "en": "Logic & Precision" },
+                img: "KevinDeBruyne.png",
                 why: { 
                     "zh-Hant": "迪布尼那手術刀般精確的傳球，背後是 INTP 對世界規律與幾何空間極致理性的分析與運算。",
                     "zh-Hans": "德布劳内那手术刀般精确的传球，背后是 INTP 对世界规律与几何空间极致理性的分析与运算。",
@@ -516,17 +634,21 @@
                 },
                 traits: {
                     "zh-Hant": "【內在動機與大局觀】：\n你的大腦隨時都在高速運轉，對萬事萬物的運作邏輯充滿好奇。你深信所有的複雜系統都有其規律，你擅長在最混亂、最嘈雜的局面中，冷靜地剝離情緒雜音，推導出最佳解法與進攻路線。\n\n【社交模式與心靈世界】：\n你討厭虛偽的應酬與低智的對話，比起人情世故的拉扯，你更享受智力上的極致博弈。在他人眼裡你可能略顯高冷、甚至直白得有些不留情面，但那只是你對客觀事實的誠實與堅持。\n\n【面對壓力的轉化機制】：\n壓力對你而言只是一個需要解決的複雜程式碼。當隊友在場上情緒失控時，你反而能冷靜得近乎冰冷。你的直覺往往是深度運算的產物，你傳出的每一腳球，都是在用幾何學重構對手防線的秩序。",
-                    "zh-Hans": "【内在动机与大局观】：\n你的大脑随时都在高速运转，对万事万物的运作逻辑充满好奇。你深信所有的复杂系统都有其规律，你擅长在最混乱、最嘈杂的局面中，冷静地剥离情绪杂音，推导 begging 出最佳解法与进攻路线。\n\n【社交模式与心灵世界】：\n你讨厌虚伪的应酬与低智的对话，比起人情世故的拉扯，你更享受智力上的极致博弈。在他人眼里你可能略显高冷、甚至直白得有些不留情面，但那只是你对客观事实的诚实与坚持。\n\n【面对压力的转化机制】：\n压力对你而言只是一个需要解决的复杂程式码。当队友在场上情绪失控时，你反而能冷静得近乎冰冷。你的直觉往往是深度运算的产物，你传出的每一脚球，都是在用几何学重构对手防线的秩序。",
+                    "zh-Hans": "【内在动机与大局观】：\n你的大脑随时都在高速运转，对万事万物的运作逻辑充满好奇。你深信所有的复杂系统都有其规律，你擅长在最混乱、最嘈杂的局面中，冷静地剥离情绪杂音，推导 begging 出最佳解法与进攻路线。\n\n【社交模式与心灵世界】：\n你讨厌虚伪的应酬与低智的对话，比起人情世故的拉扯，你更享受智力上的极致博弈。在他人眼里你可能显得高冷、甚至直白得有些不留情面，但那只是你对客观事实的诚实与坚持。\n\n【面对压力的转化机制】：\n压力对你而言只是一个需要解决的复杂程式码。当队友在场上情绪失控时，你反而能冷静得近乎冰冷。你的直觉往往是深度运算的产物，你传出的每一脚球，都是在用几何学重构对手防线的秩序。",
                     "en": "★ [Internal Motivation & Vision]:\nYour brain operates at high speeds, curious about how things work. You believe every complex system has a pattern, and excel at distilling emotional noise to find the optimal logical solution in chaos.\n\n★ [Social & Inner World]:\nYou detest fake socializing and low-efficiency talk. You prefer deep intellectual battles. Some may find you cold or blunt, but it is just your deep honesty and focus on objective facts.\n\n★ [Handling Pressure]:\nTo you, pressure is just a complex equation. While others panic, you become ice-cool. Your pitch intuition is a product of high-level calculation, tearing down defense through geometry."
                 },
-                advice: { "zh-Hant": "人際關係有時也需要情感的潤滑。多跟戰友溝通你的思考，能讓你的宏偉藍圖更容易實現。", "zh-Hans": "人际关系有时也需要情感的润滑。多跟战友沟通你的思考，能让你的宏伟蓝图更容易实现。", "en": "Relationships sometimes need emotional lubrication. Communicating your thoughts better helps implement your grand blueprint." }
+                advice: {
+                    "zh-Hant": "人際關係有時也需要情感的潤滑。多跟戰友溝通你的思考，能讓你的宏偉藍圖更容易實現。",
+                    "zh-Hans": "人际关系有时也需要情感的润滑。多跟战友沟通你的思考，能让你的宏伟蓝图更容易实现。",
+                    "en": "Relationships sometimes need emotional lubrication. Communicating your thoughts better helps implement your grand blueprint."
+                }
             },
             "INFJ": {
                 name: { "zh-Hant": "派路", "zh-Hans": "皮尔洛", "en": "Pirlo" },
                 role: { "zh-Hant": "古典哲學家 · 深邃的先知", "zh-Hans": "古典哲学家 · 深邃的先知", "en": "Pitch Prophet" },
-                img: "AndreaPirlo.png",
                 pos: { "zh-Hant": "組織中場", "zh-Hans": "组织中场", "en": "Deep-lying Playmaker" },
                 val: { "zh-Hant": "寧靜與內在信仰", "zh-Hans": "宁静与内在信仰", "en": "Peace & Inner Faith" },
+                img: "AndreaPirlo.png",
                 why: { 
                     "zh-Hant": "派路在賽場上那種安靜優雅、預見未來的直覺與超凡氣度，是 INFJ 深邃內在心靈與宏觀先知思維的體現。",
                     "zh-Hans": "皮尔洛在赛场上那种安静优雅、预见未来的直觉与超凡气度，是 INFJ 深邃内在心灵与宏观先知思维的体现。",
@@ -534,92 +656,112 @@
                 },
                 traits: {
                     "zh-Hant": "【內在動機與大局觀】：\n你是萬中無一的「精神燈塔」。你內心擁有超凡的直覺與對真理的洞察力。你不會隨波逐流，對你而言，不戰而屈人之兵是最高的美學。你踢出的每一步、做出的每個選擇，都有著極其深遠的意圖。\n\n【社交模式與心靈世界】：\n你熱愛寧靜，內心世界宏大且極其複雜。在喧囂的世界裡，你習慣保持冷靜與體面的社交距離。你只對最純粹、有深度的靈魂敞開心扉。你的同理心極強，總能輕易看穿他人的脆弱並給予沈默的守護。\n\n【面對壓力的轉化機制】：\n在高度混亂或充滿雜音的環境中，你會自發性地進入精神沉思。壓力不會打亂你的節奏，反而會過濾掉所有干擾，讓你的直覺更加敏銳。你能在千鈞一髮之際，傳出那條劃破時空限制的「上帝之線」。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是万中无一的“精神灯塔”。你内心拥有超凡的直觉与对真理的洞察力。你不会随波逐流，对你而言，不战而屈人之兵是最高的美学。你踢出的每一步、做出的每个选择，都有着极其深远的意图。\n\n【社交模式与心灵世界】：\n你热爱宁静，内心世界宏大且极其复杂。在喧嚣的世界里，你习惯保持冷静与体面的社交距离。你只对最纯粹、有深度的灵魂敞开心扉。你的同理心极强，总能轻易看穿他人的脆弱并给予沉默的守护。\n\n【面对压力的转化机制】：\n在高度混乱或充满杂音的环境中，你会自发性地进入精神沉思。压力不会打乱你的节奏，反而会过滤掉所有干扰，让你的直觉更加敏锐。你能在千钧一发之际，传出那条划破时空限制的“上帝之线”。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是万中无一的“精神灯塔”。你内心拥有超凡的直觉与对真理的洞察力。你不会随波逐流，对你而言，不战而屈人之兵是最高的美学。你踢出的每一步、做出的每个选择，都有着极其深远的意图。\n\n【社交模式与心灵世界】：\n你热爱宁静，内心世界宏大且极其复杂。在歌舞的世界里，你习惯保持冷静与体面的社交距离。你只对最纯粹、有深度的灵魂敞开心扉。你的同理心极强，总能轻易看穿他人的脆弱并给予沉默的守护。\n\n【面对压力的转化机制】：\n在高度混乱或充满杂音的环境中，你会自发性地进入精神沉思。压力不会打乱你的节奏，反而会过滤掉所有干扰，让你的直觉更加敏锐。你能在千钧一发之际，传出那条划破时空限制的“上帝之线”。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are a rare 'Spiritual Lighthouse' with transcendent intuition. You don't follow trends; conquering without running is your aesthetic. Every move has a deeper long-term meaning.\n\n★ [Social & Inner World]:\nYou love peace, holding a massive yet complex inner world. In a noisy world, you maintain a decent social distance, opening your heart only to pure, deep souls. Your empathy is silent yet strong.\n\n★ [Handling Pressure]:\nIn chaotic or loud environments, you retreat into spiritual contemplation. Pressure filters distractions, sharpening your intuition. You drop the 'pass of God' that shatters boundaries in critical moments."
                 },
-                advice: { "zh-Hant": "保持你的信仰，但偶爾也要與不完美的世俗世界建立連結，那會讓你的力量更具溫度。", "zh-Hans": "保持你的信仰，但偶尔也要与不完美的世俗世界建立链接，那会让你的力量更具温度。", "en": "Hold your faith, but connect with the imperfect world occasionally; it gives your power warmth." }
+                advice: {
+                    "zh-Hant": "保持你的信仰，但偶爾也要與不完美的世俗世界建立連結，那會讓你的力量更具溫度。",
+                    "zh-Hans": "保持你的信仰，但偶尔也要与不完美的世俗世界建立链接，那会让你的力量更具温度。",
+                    "en": "Hold your faith, but connect with the imperfect world occasionally; it gives your power warmth."
+                }
             },
             "ISTP": {
                 name: { "zh-Hant": "姆巴佩", "zh-Hans": "姆巴佩", "en": "Mbappe" },
                 role: { "zh-Hant": "冷酷的刺客 · 實踐家", "zh-Hans": "冷酷的刺客 · 实践家", "en": "Cold-Blooded Assassin" },
-                img: "KylianMbappe.png",
                 pos: { "zh-Hant": "閃電鋒線", "zh-Hans": "闪电锋线", "en": "Speed Striker" },
                 val: { "zh-Hant": "效率至上，絕對致命", "zh-Hans": "效率至上，绝对致命", "en": "Efficiency & Deathblow" },
+                img: "KylianMbappe.png",
                 why: { 
                     "zh-Hant": "姆巴佩那種驚人的爆發力與無比冷靜、務實的門前終結，展現了 ISTP 對物體與感官反饋完美的掌控力。",
                     "zh-Hans": "姆巴佩那种惊人的爆发力与无比冷静、务实的门前终结，展现了 ISTP 对物体与感官反馈完美的掌控力。",
                     "en": "Mbappe's explosive speed paired with practical, cold finishing exhibits ISTP's perfect mastery over objects and physical feedback."
                 },
                 traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是球場上最冷血的「執行大師」。你不愛誇誇其談，也不相信繁瑣的理論，你更享受在實際操作、高度精細的戰鬥中尋找極限。你對物理世界有著絕佳的直覺與掌握力。\n\n【社交模式與心靈世界】：\n你低調、獨立，不喜歡被繁文縹緲的條例與情感捆綁所束縛。你珍惜個人空間，並在安靜中打磨自己的「技藝」。你待人客觀，但一旦認可夥伴，你會在最危急時刻給予物理上的絕對支持。\n\n【面對壓力的轉化機制】：\n在面臨極高壓的生死關頭，你的生理反射速度往往會快過大腦分析，進入一種純粹的「獵殺狀態」。你冷若寒霜，任何挑釁都無法影響你的瞄準，在最迅捷、最省力的路徑上給對手最致命一擊。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是球场上最冷血的“执行大师”。你不爱夸夸其谈，也不相信繁琐的理论，你更享受在实际操作、高度精细的战斗中寻找极限。你对物理世界有着绝佳的直觉与掌控力。\n\n【社交模式与心灵世界】：\n你低调、独立，不喜欢被繁文缥缈的条例与情感捆绑所束缚。你珍惜个人空间，并在安静中打磨自己的“技艺”。你待人客观，但一旦认可伙伴，你会在最危急时刻给予物理上的绝对支持。\n\n【面对压力的转化机制】：\n在面临极高压的生死关头，你的生理反射速度往往会快过大脑分析，进入一种纯粹的“猎杀状态”。你冷若寒霜，任何挑衅都无法影响你的瞄准，在最迅捷、最省力的路径上给对手最致命一击。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou are the cold-blooded 'Master of Execution'. You ignore empty theories, finding joy in physical skill and intense hand-to-hand combat. You have perfect perception of physics.\n\n★ [Social & Inner World]:\nYou are quiet, highly independent, and loathe emotional codependency or red tape. You guard your personal space to polish your crafts. Reliable in action, you are a lethal support.\n\n★ [Handling Pressure]:\nIn life-or-death moments, your physical reflexes outrun logical delay. You enter a primal 'Predator State'—unbothered by trash talk, finding the swiftest and most fatal stroke."
+                    "zh-Hant": "【內在動機與大局觀】：\n你是球場上最冷血的「執行大師」。你不愛誇誇其談，也不相信繁瑣的理論，你更享受在實際操作、高度精細的戰鬥中尋找極限。你對物理世界有著絕佳的直覺與掌握力。\n\n【社交模式與心靈世界】：\n你低調、獨立，不喜歡被繁文縹緲的條例與情感捆綁所束縛。你珍惜個人空間，並在安靜中打磨自己的「技藝」。你待人客觀，但一旦認可夥伴，你會在最危急時刻給予物理上的絕對支持。\n\n【面對壓力的轉化機制】：\n在面臨極高壓的生死關頭，你的生理反射速度往往會快過大腦分析，進入一種純粹的「獵殺狀態」。你冷若寒霜，任何挑釁都無法影響你的瞄準，在最迅速、最省力的路徑上給對手最致命一擊。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是球场上最冷血的“执行大师”。你不爱夸夸其谈，也不相信繁琐的理论，你更享受在实际操作、高度精细的战斗中寻找极限。你对物理世界有着绝佳的直觉与掌控力。\n\n【社交模式与心灵世界】：\n你低调、独立，不喜欢被繁文缥缈的条例与情感捆绑所束缚。你珍惜个人空间，并在安静中打磨自己的“技艺”。你待人客观，但一旦认可伙伴，你会在最危急时刻给予物理上的绝对支持。\n\n【面对压力的转化机制】：\n在面临极高压的生死关头，你的生理反射速度往往会快过大脑分析，进入一种纯粹的“猎杀状态”。你冷若寒霜，任何挑衅都无法影响你的瞄准，在最迅速、最省力的路径上给对手最致命一击。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou seek absolute control and responsibility. You are thoughtful, avoiding unprepared battles, and believe in steady work over flashy gimmicks. You serve as the core of order and systems in teams.\n\n★ [Social & Inner World]:\nYou are quiet, highly independent, and loathe emotional codependency or red tape. You guard your personal space to polish your crafts. Reliable in action, you are a lethal support.\n\n★ [Handling Pressure]:\nIn life-or-death moments, your physical reflexes outrun logical delay. You enter a primal 'Predator State'—unbothered by trash talk, finding the swiftest and most fatal stroke."
                 },
-                advice: { "zh-Hant": "在獨自磨礪絕招的同時，多觀察周邊隊友的節奏，配合能讓你的刺殺計劃更加完美無瑕。", "zh-Hans": "在独自磨砺绝招的同时，多观察周边队友的节奏，配合能让你的刺杀计划更加完美无瑕。", "en": "While sharpening skills alone, study your team's rhythm; cooperation makes your execution seamless." }
+                advice: {
+                    "zh-Hant": "在獨自磨礪絕招的同時，多觀察周邊隊友的節奏，配合能讓你的刺殺計劃更加完美無瑕。",
+                    "zh-Hans": "在独自磨砺绝招的同时，多观察周边队友的节奏，配合能让你的刺杀计划更加完美无瑕。",
+                    "en": "While sharpening skills alone, study your team's rhythm; cooperation makes your execution seamless."
+                }
             },
             "ESFJ": {
-                name: { "zh-Hant": "碧咸", "zh-Hans": "贝克汉姆", "en": "Beckham" },
-                role: { "zh-Hant": "優雅的精神支柱 · 執政官", "zh-Hans": "优雅的精神支柱 · 执政官", "en": "Pillar of Grace · Consul" },
-                img: "DavidBeckham.png",
-                pos: { "zh-Hant": "邊路大師", "zh-Hans": "边路大师", "en": "Midfield Engine" },
-                val: { "zh-Hant": "忠誠、家國與團隊體面", "zh-Hans": "忠诚、家国与团队体面", "en": "Loyalty & Honor" },
+                name: { "zh-Hant": "基斯文", "zh-Hans": "格列兹曼", "en": "Griezmann" },
+                role: { "zh-Hant": "全能利他 · 綠茵守護隊長", "zh-Hans": "全能利他 · 绿茵守护队长", "en": "The Selfless Protector" },
+                pos: { "zh-Hant": "全能前腰 / 影子前鋒", "zh-Hans": "全能前腰 / 影子前锋", "en": "Versatile Playmaker" },
+                val: { "zh-Hant": "團隊的勝利，高於我個人的進球", "zh-Hans": "团队的胜利，高于我个人的进球", "en": "Team Victory Above Personal Goals" },
+                img: "AntoineGriezmann.png",
                 why: { 
-                    "zh-Hant": "碧咸卓越的領袖氣質、對家庭和團隊的誓死忠誠以及追求美感與體面的性格，是 ESFJ 熱心且富有責任感天性的註腳。",
-                    "zh-Hans": "贝克汉姆卓越的领袖气质、对家庭和团队的誓死忠诚以及追求美感与体面的性格，是 ESFJ 热心且富有责任感天性的注脚。",
-                    "en": "Beckham's high leadership, absolute loyalty to family and team, and search for grace perfectly describe ESFJ's warm and responsible nature."
+                    "zh-Hant": "基斯文身為進攻核心卻擁有無私的犧牲精神，為了團隊甘願瘋狂回防剷球，他對同伴的照料與熱情是 ESFJ 完美融入體系的模範。",
+                    "zh-Hans": "格列兹曼身为进攻核心却拥有无私的牺牲精神，为了团队甘愿疯狂回防铲球，他对同伴的照料与热情是 ESFJ 完美融入体系的模范。",
+                    "en": "Griezmann's selfless work rate, tracking back, and team sacrifice perfectly describe ESFJ's warm, responsible, and supportive nature."
                 },
                 traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是團隊中最溫柔且強大的「守護者」。你高度重視傳統、責任與社會規範。對你而言，人際關係的和諧與集體的榮譽重於一切。你習慣用完美的職業態度與外在形象，成為團隊的旗幟與典範。\n\n【社交模式與心靈世界】：\n你熱情、大方，天生具備極高的人格魅力，在社交中能如魚得水。你非常敏銳地感知他人的情感需求，總是習慣照顧到每個人的情緒，竭力營造一種溫暖、像「家庭」一樣充滿支持感的環境。\n\n【面對壓力的轉化機制】：\n在面臨壓力與外界質疑時，你雖然內心敏感焦慮，但為了團隊的「大局與體面」，你絕不容許自己露出半分疲態。你會咬緊牙關，用更加嚴苛的自我要求與無私的奉獻站穩腳步，在關鍵时刻用長傳與汗水撕裂黑暗。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是团队中最温柔且强大的“守护者”。你高度重视传统、责任与社会规范。对你而言，人际关系和谐与集体的荣誉重于一切。你习惯用完美的职业态度与外在形象，成为团队的旗帜与典范。\n\n【社交模式与心灵世界】：\n你热情、大方，天生具备极高的人格魅力，在社交中能如鱼得水。你非常敏锐地感知他人的情感需求，总是习惯照顾到每个人的情绪，竭力营造一种温暖、像“家庭”一样充满支持感的环境。\n\n【面对压力的转化机制】：\n在面临压力与外界质疑时，你虽然内心敏感焦虑，但为了团队的“大局与体面”，你决不容许自己露出半分疲态。你会咬紧牙关，用更加严苛的自我要求与无私的奉献站稳脚步，在关键时刻用长传与汗水撕裂黑暗。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou are the warmest, strongest 'Guardian' of the group. You value traditions, duties, and social harmony. You use your perfect professional attitude and elegant image to stand as a standard.\n\n★ [Social & Inner World]:\nYou are passionate, social, and naturally possess stellar charisma. Extremely sensitive to emotional demands, you strive to care for everyone, ensuring a warm, family-like support system.\n\n★ [Handling Pressure]:\nWhen facing skepticism, though anxious internally, you refuse to show fatigue for the sake of the collective. You tighten your teeth, delivering unselfish effort and game-changing deliveries to tear the darkness."
+                    "zh-Hant": "【內在動機與大局觀】：\n你是團隊中最溫柔且強大的「守護者」。你高度重視集體的榮譽與凝聚力。對你而言，團隊的勝利遠比個人的高光更重要。你習慣用百分之百的奉獻與無私的職業態度，甘願為了團隊利益去默默做那些「不顯眼但至關重要」的髒活累活。\n\n【社交模式與心靈世界】：\n你熱情、開朗，天生就是更衣室與社交圈裡的「黏著劑」與開心果。你非常敏銳地感知身邊夥伴的情感需求，總是習慣照顧到每個人的情緒，竭力營造一種快樂、充滿溫慢與支持感的環境，讓每個人都能在你身邊感到安心。\n\n【面對壓力的轉化機制】：\n在面臨高壓與局勢落後時，你雖然也會焦慮，但為了團隊的「大局與勝利」，你絕不容許自己有半分懈怠。你會咬緊牙關，用瘋狂的奔跑、積極的回防與不知疲倦的剷球來撕裂混亂，用行動帶領大家站穩腳步，成為防線前最堅固的護盾。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是团队中最温柔且强大的“守护者”。你高度重视集体的荣誉与凝聚力。对你而言，团队的胜利远比个人的高光更重要。你习惯用百分之百的奉献与无私的职业态度，甘愿为了团队利益去默默做那些“不显眼但至关重要”的脏活累活。\n\n【社交模式与心灵世界】：\n你热情、开朗，天生就是更衣室与社交圈里的“粘着剂”与开心果。你非常敏锐地感知身边伙伴的情感需求，总是习惯照顾到每个人的情绪，竭力营造一种快乐、充满温暖与支持感的环境，让每个人都能在你身边感到安心。\n\n【面对压力的转化机制】：\n在面临高压与局势落后时，你虽然也会焦虑，幕后工作也绝不容许自己有半分懈怠。你会咬紧牙关，用疯狂的奔跑、积极的回防与不知疲倦的铲球来撕裂混乱，用行动带领大家站稳脚步，成为防线前最坚固的护盾。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou are the warmest, strongest 'Guardian' of the group. You value team victory above personal glory. With a selfless work rate and perfect professional attitude, you willingly do the unglamorous dirty work for the collective good.\n\n★ [Social & Inner World]:\nYou are passionate, joyful, and naturally serve as the emotional glue of the dressing room. Extremely sensitive to others' needs, you strive to care for everyone, ensuring a warm, happy, and fully supportive atmosphere.\n\n★ [Handling Pressure]:\nWhen facing high-stakes pressure, you refuse to show fatigue for the sake of the collective. You tighten your teeth, delivering relentless running, defensive tracking, and unselfish tackles to guard the team and break through the chaos."
                 },
-                advice: { "zh-Hant": "在不顧一切滿足他人與維護和諧的同時，多留一點點空間來擁抱與取悅最真實的自己。", "zh-Hans": "在不顾一切满足他人与维护和谐的同时，多留一点点空间来拥抱与取悦最真实的自己。", "en": "While caring for harmony, save some room to embrace and reward your true self." }
+                advice: {
+                    "zh-Hant": "在不顧一切照亮團隊與瘋狂奔跑的同時，也別忘了留一點點空間，盡情享受專屬於你個人的高光與掌聲。",
+                    "zh-Hans": "在不顾一切照亮团队与疯狂奔跑的同时，也别忘了留一点点空间，尽情享受专属于你个人的高光与掌声。",
+                    "en": "While shining and running tirelessly for the team, save some room to embrace and enjoy your own spotlight."
+                }
             },
-            "INTJ": {
-                name: { "zh-Hant": "哥迪奧拿", "zh-Hans": "瓜迪奥拉", "en": "Guardiola" },
-                role: { "zh-Hant": "戰術大師 · 系統性改革者", "zh-Hans": "战术大师 · 系统性改革者", "en": "Tactical Reformer" },
-                img: "PepGuardiola.png",
-                pos: { "zh-Hant": "戰術司令塔", "zh-Hans": "战术司令塔", "en": "Tactical Master" },
-                val: { "zh-Hant": "重構未來的系統", "zh-Hans": "重构未来的系统", "en": "Reconstructing the Future" },
+            "ENTJ": { 
+                name: { "zh-Hant": "伊巴謙莫域", "zh-Hans": "伊布拉希莫维奇", "en": "Zlatan Ibrahimovic" },
+                role: { "zh-Hant": "戰場的主宰 · 鐵腕統帥", "zh-Hans": "战场的主宰 · 铁腕统帅", "en": "Commander of Battlefield" },
+                pos: { "zh-Hant": "禁區霸主", "zh-Hans": "禁区霸主", "en": "Sovereign Forward" },
+                val: { "zh-Hant": "用實力制定秩序", "zh-Hans": "用实力制定秩序", "en": "Set Order via Power" },
+                img: "ZlatanIbrahimovic.png",
                 why: { 
-                    "zh-Hant": "哥迪奧拿對於防線、球場寬度以及精確傳控體系偏執般的優化，是 INTJ 大師思維與戰略洞察力的完美註解。",
-                    "zh-Hans": "瓜迪奥拉对于防线、球场宽度以及精确传控体系偏执般的优化，是 INTJ 大师思维与战略洞察力的完美注解。",
-                    "en": "Guardiola's obsessive optimization of defense lines, space, and tiki-taka is the perfect description of INTJ's strategic brilliance."
+                    "zh-Hant": "伊巴謙莫域那種超越世俗的自信、強烈的掌控欲以及自稱「上帝與獅子」的霸氣，是 ENTJ 指揮官人格的具象。",
+                    "zh-Hans": "伊布拉希莫维奇那种超越世俗的自信、强烈的掌控欲以及自称“上帝与狮子”的霸气，是 ENTJ 指挥官人格的具象。",
+                    "en": "Ibrahimovic's absolute confidence, need for control, and self-proclamation as a 'Lion or God' perfectly reflect the ENTJ Commander personality."
                 },
                 traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是天生的「系統重構者」。你不活在當下，你活在未來。在你眼裡，現有的世界（或足球體系）是充滿缺陷的，你的使命就是推翻混亂、用極致精密的邏輯建立完美的運作鏈條。\n\n【社交模式與心靈世界】：\n你獨立、理性，甚至在某些人眼裡顯得傲慢與孤獨。你討厭任何沒有效率的虛禮，對你而言，智力上的精準碰撞才是最高級的交流。你冷靜觀察世人，心中早已算計好了所有棋步。\n\n【面對壓力的轉化機制】：\n高壓會讓你進入瘋狂運算狀態，你甚至會沈溺於戰術板與數據中，追求一種連人性變量都能計算在內的極致控制。你會用一種別人無法理解的遠見，頂住所有流俗偏見，建立震驚世界的全新系統。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是天生的“系统重构者”。你不活在当下，你活在未来。在你眼里，现有的世界（或足球体系）是充满缺陷的，你的使命就是推翻混乱、用极致精密的逻辑建立完美的运作链条。\n\n【社交模式与心灵世界】：\n你独立、理性，甚至在某些人眼里显得傲慢与孤独。你讨厌任何没有效率的虚礼，对你而言，智力上的精准碰撞才是最高级的交流。你冷静观察世人，心中早已算计好了所有棋步。\n\n【面对压力的转化机制】：\n高压会让你进入疯狂运算状态，你甚至会沉溺于战术板与数据中，追求一种连人性变量都能计算在内的极致控制。你会用一种别人无法理解的远见，顶住所有流俗偏见，建立震惊世界的全新系统。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou are a natural 'System Architect'. You live in the future. To you, current systems are flawed, and your mission is to demolish the chaos, building logic chains of peak precision.\n\n★ [Social & Inner World]:\nYou are independent, highly rational, and sometimes seen as cold or lonely. You despise useless rituals, preferring raw intellectual alignment. You watch quietly, having calculated all future moves.\n\n★ [Handling Pressure]:\nHigh pressure turns your brain into a calculation frenzy. You obsess over data and tactical setups, trying to control even human variables. Driven by vision, you withstand criticism to install revolutionary orders."
+                    "zh-Hant": "【內在動機與大局觀】：\n你是天生的「主宰者」。你絕不允許自己落入平庸，對你而言，生活就是一場關於力量、效率與征服的巨型棋局。你具備極強的宏觀決決斷力，善於將紛亂的隊伍擰成一股高效率前進的戰線。\n\n【社交模式與心靈世界】：\n你自信、果敢、直擊事物本質。你熱愛挑戰權威，因為你骨子裡就認為自己才是規則的起草人。你待人高效直接，不能容忍拖泥帶水的軟弱與藉口。你用絕對的強大與實力，建立不容動搖的個人威望。\n\n【面對壓力的轉化機制】：\n極端的高壓與絕境只會成為喚醒你野獸直覺的信號。你不會有半分猶豫，而是會用一種近乎「狂妄」的絕對意志強行主導局面，調動身邊一切可以動用的資源去打破僵局，用勝利奠定你的帝國秩序。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是天生的“主宰者”。你绝不允许自己落入平庸，对你而言，生活就是一场关于力量、效率与征服的巨型棋局。你具备极强的宏观决断力，善于将阵乱的队伍拧成一股高效率前进的战线。\n\n【社交模式与心灵世界】：\n你真實、果敢、直击事物本质。你热爱挑战权威，因为你骨子里就认为自己才是规则的起草人。你待人高效直接，不能容忍拖泥带水的软弱与借口。你用绝对的强大与实力，建立不容动摇的个人威望。\n\n【面对压力的转化机制】：\n极端的高压与绝境只会成为唤醒你野兽直觉的信号。你不会有半分犹豫，而是会用一种近乎「舆论」的绝对意志强行主导局面，調動身边一切可以动用的资源去打破僵局，用胜利奠定你的帝国秩序。",
+                    "en": "★ [Internal Motivation & Vision]:\nYou are a born 'Ruler'. You refuse to settle for mediocrity; life is a giant game of conquest, power, and efficiency. You possess sharp strategic logic, uniting teams into fatal execution lines.\n\n★ [Social & Inner World]:\nYou are bold, decisive, and hit the core directly. You enjoy challenging authority, believing you were born to set the rules. Demanding efficiency, you tolerate no soft excuses, building deep respect via sheer power.\n\n★ [Handling Pressure]:\nSevere pressure acts only as an alarm to wake up your inner predator. Displaying no hesitation, you take absolute charge with wild confidence, aligning resources to destroy the deadlock and build order."
                 },
-                advice: { "zh-Hant": "完美系統終究需要不完美的「人性」來運作，適度給予身邊人一些容錯的溫柔會更好。", "zh-Hans": "完美系统终究需要不完美的“人性”来运作，适度给予身边人一些容错的温柔会更好。", "en": "Perfect systems need imperfect humanity to operate; giving others gentle room for errors will ease execution." }
+                advice: {
+                    "zh-Hant": "獅子在咆哮之餘，偶爾流露出的溫和與退讓，非但不會削弱你的力量，反而能贏得靈魂深處的追隨。",
+                    "zh-Hans": "狮子在咆哮之余，偶尔流露出的温和与退让，非但不会削弱你的力量，反而能赢得灵魂深处的追随。",
+                    "en": "The lion's occasional softness does not diminish your power; it wins deeper and more spiritual loyalty from your pack."
+                }
             },
             "ENTP": {
-                name: { "zh-Hant": "湯馬士 · 梅拿", "zh-Hans": "托马斯 · 穆勒", "en": "Muller" },
+                name: { "zh-Hant": "湯馬士 · 梅拿", "zh-Hans": "托马斯 · 穆勒", "en": "Thomas Muller" },
                 role: { "zh-Hant": "空間獵手 · 規則挑戰者", "zh-Hans": "空间猎手 · 规则挑战者", "en": "Space Investigator" },
-                img: "ThomasMuller.png",
                 pos: { "zh-Hant": "空間解析手", "zh-Hans": "空间解析手", "en": "Raumdeuter" },
                 val: { "zh-Hant": "在規則邊緣跳舞", "zh-Hans": "在规则边缘跳舞", "en": "Dancing on the Edge" },
+                img: "ThomasMuller.png",
                 why: { 
                     "zh-Hant": "梅拿（Raumdeuter 空間解讀者）那種不按規律跑位、在最意想不到之處送出助攻的球風，是 ENTP 顛覆傳統思維的具體實踐。",
                     "zh-Hans": "穆勒（Raumdeuter 空间解读者）那种不按规律跑位、在最意想不到之处送出助攻的球风，是 ENTP 颠覆传统思维的具体实践。",
                     "en": "Muller's 'Raumdeuter' style—popping up in unexpected gaps and delivering assists without pattern—is the perfect display of ENTP's rule-breaking intellect."
                 },
                 traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是思維上的「探險家與戰術叛逆者」。你天生具備雙重觀察視野，對無趣的重複指令感到生理不適。你深信世事皆有破綻，你熱衷於在最僵化的體系中挖掘出無人料想的捷徑與幽默感。\n\n【社交模式與心靈世界】：\n你機智、風趣，天生有一種拆解尷尬與權威的黑色幽默。你在社交中游刃有餘，喜歡用辯論、玩笑的方式激發思想火花。在他人眼裡，你像個難以捉摸的小丑，但本質上你是一位冷靜的大富翁棋手。\n\n【面對壓力的轉化機制】：\n當情勢陷入死胡同、隊伍陷入絕望時，你的興奮度反而會被喚醒。高壓會激發你的腦洞，你會用一種近乎「自嘲式」的冷靜，在常人認為死路一條的地方跳起歡樂的舞蹈，以不可預測的奇襲打破僵局。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是思维上的“探险家与战术叛逆者”。你天生具备双重观察视野，对无趣的重复指令感到生理不适。你深信世事皆有破绽，你热衷于在最僵化的体系中挖掘出无人料想的捷径与幽默感。\n\n【社交模式与心灵世界】：\n你机智、风趣，天生有一种拆解尴尬与权威的黑色幽默。你在社交中游刃有余，喜欢用辩论、玩笑的方式激发思想火花。在他人眼里，你像个难以捉摸的小丑，但本质上你是一位冷静的大富翁棋手。\n\n【面对压力的转化机制】：\n当情势陷入死胡同、队伍陷入绝望时，你的兴奋度反而会被唤醒。高压会激发你的脑洞，你会用一种近乎“自嘲式”的冷静，在常人认为死路一条的地方跳起欢乐的舞蹈，以不可预测的奇袭打破僵局。",
+                    "zh-Hant": "【內在動機與大局觀】：\n你是思維上的「探險家與戰術叛逆者」。你天生具備雙重觀察視野，對無趣的重複指令感到生理不適。你深信世事皆有破綻，你熱衷於在最僵化的體系中挖掘出無人料想的捷徑與幽默感。\n\n【社交模式與心靈世界】：\n你機智、風趣，天生有一種拆解尷尬與權威的黑色幽默。你在社交中游刃有餘，喜歡用擺論、玩笑的方式激發思想火花。在他人眼裡，你像個難以捉摸的小丑，但本質上你是一位冷靜的大富翁棋手。\n\n【面對壓力的轉化機制】：\n當情勢陷入死胡同、隊伍陷入絕望時，你的興奮度反而會被喚醒。高壓會激發你的腦洞，你會用一種近乎「自嘲式」的冷靜，在常人認為死路一條的地方跳起歡樂的舞蹈，以不可預測的奇襲打破僵局。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是思维上的“探险家与战术叛逆者”。你天生具备双重观察视野，对无趣的重复指令感到生理不适。你深信世事皆有破绽，你热衷于在最僵化的体系中挖掘出无人料想的捷径与幽默感。\n\n【社交模式与心灵世界】：\n你机智、风趣，天生有一种解拆尴尬与权威的黑色幽默。你在社交中游刃有余，喜欢用辩论、玩笑的方式激发思想火花。在他人眼里，你像个难以捉摸的小丑，但本质上你是一位冷静的大富翁棋手。\n\n【面对压力的转化机制】：\n当情势陷入死胡同、队伍陷入绝望时，你的兴奋度反而会被唤醒。高压会激发你的脑洞，你会用一种近乎“自嘲式”的冷静，在常人认为死路一条的地方跳起欢乐的舞蹈，以不可预测的奇袭打破僵局。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are a mental explorer and tactical rebel. Rigid, repetitive commands exhaust you. You believe every setup has a weakness, and enjoy digging out unexpected pathways and humor in stiff structures.\n\n★ [Social & Inner World]:\nYou are witty, highly communicative, with a dark humor that breaks awkward situations and rules. A chess player in a joker's coat, you enjoy sparking mental fireworks with peers.\n\n★ [Handling Pressure]:\nWhen situations reach a dead end and others panic, your brain triggers excitement. Pressure sharpens your odd ideas, allowing you to dance on the edge of the abyss and crack the deadlock with weird moves."
                 },
-                advice: { "zh-Hant": "專注力是你的超能力。在漫天飛舞的奇思妙想中，保留一個焦點將其徹底實現，你會更無懈可擊。", "zh-Hans": "专注力是你的超能力。在漫天飞舞的奇思妙想中，保留一个焦点将其彻底实现，你会更无懈可击。", "en": "Focus is your superpower. Amidst a sea of strange thoughts, pick one and implement it fully; you'll be unstoppable." }
+                advice: {
+                    "zh-Hant": "專注力是你的超能力。在漫天飛舞的奇思妙想中，保留一個焦點將其徹底實現，你會更無懈可擊。",
+                    "zh-Hans": "专注力是你的超能力。在漫天飞舞的奇思妙想中，保留一个焦点将其彻底实现，你会更无懈可击。",
+                    "en": "Focus is your superpower. Amidst a sea of strange thoughts, pick one and implement it fully; you'll be unstoppable."
+                }
             },
             "ENFJ": {
                 name: { "zh-Hant": "杜奧巴", "zh-Hans": "德罗巴", "en": "Drogba" },
                 role: { "zh-Hant": "英雄的召喚者 · 精神領袖", "zh-Hans": "英雄的召唤者 · 精神领袖", "en": "Heroic Mentor" },
-                img: "DidierDrogba.png",
                 pos: { "zh-Hant": "強力前鋒", "zh-Hans": "強力前锋", "en": "Power Forward" },
                 val: { "zh-Hant": "超越勝負的家國信仰", "zh-Hans": "超越胜负的家国信仰", "en": "Faith beyond Victory" },
+                img: "DidierDrogba.png",
                 why: { 
                     "zh-Hant": "杜奧巴用足球凝聚戰火中國家的英雄行徑，是 ENFJ 超凡的人格魅力、極致的同理心與使命感的巔峰註腳。",
-                    "zh-Hans": "德罗巴用足球凝聚战火中国家的英雄行径，是 ENFJ 超凡的人格魅力、极致的同理心与使命感的巅峰注脚。",
+                    "zh-Hans": "德罗巴用足球凝聚战火中国家的英雄行行径，是 ENFJ 超凡的人格魅力、极致的同理心与使命感的巅峰注脚。",
                     "en": "Drogba's heroic act of uniting a war-torn country through football is the ultimate testament to ENFJ's profound charisma and mission."
                 },
                 traits: {
@@ -627,14 +769,18 @@
                     "zh-Hans": "【内在动机与大局观】：\n你是天生的“灵魂灯塔”。你心中流淌着对正义、和谐与崇高信仰的热血。对你而言，个人的成功只是微小的碎片，你更在乎你的天赋与能力如何能燃烧自我、去感化并改善身边每一个人的命运。\n\n【社交模式与心灵世界】：\n你热情、无私，具备无与伦比的感召力，大家会被你身上的光芒所吸引并由衷追随。你对他人的痛苦有着天然的同理心，往往会在群体中自发背负起最大的责任，默默扮演“保护者与导师”。\n\n【面对压力的转化机制】：\n压力会激发你灵魂深处的使命感。当局势陷入绝境时，你不会流露软弱，而是会用感性且激昂的话语，凝聚起所有人的战意，背负着无数期待做出英雄般、燃烧生命的全力一搏。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are a natural 'Spiritual Anchor'. Your heart bleeds for justice and harmony. To you, personal accolades are minor; what truly matters is using your strength to uplift everyone.\n\n★ [Social & Inner World]:\nYou are unselfish, warm, and highly charismatic. People flock to follow your light. Possessing natural empathy, you bear the heaviest responsibilities in teams, acting as a natural protector.\n\n★ [Handling Pressure]:\nPressure triggers your deep sense of mission. When everything crumbles, you hide weakness and rally others with emotional, highly inspiring words, delivering heroic efforts to turn the tide."
                 },
-                advice: { "zh-Hant": "別忘了，拯救世界的英雄也需要給自己一個安靜擁抱的溫柔，不要被大家的期待掏空了身心。", "zh-Hans": "别忘了，拯救世界的英雄也需要给自己一个安静拥抱的温柔，不要被大家的期待掏空了身心。", "en": "Remember, the hero who saves the world needs quiet rest too; do not let endless expectations drain your inner fuel." }
+                advice: {
+                    "zh-Hant": "別忘了，拯救世界的英雄也需要給自己一個安靜擁抱的溫柔，不要被大家的期待掏空了身心。",
+                    "zh-Hans": "别忘了，拯救世界的英雄也需要给自己一个安静拥抱的温柔，不要被大家的期待掏空了身心。",
+                    "en": "Remember, the hero who saves the world needs quiet rest too; do not let endless expectations drain your inner fuel."
+                }
             },
             "ENFP": {
                 name: { "zh-Hant": "朗拿甸奴", "zh-Hans": "罗纳尔迪尼奥", "en": "Ronaldinho" },
                 role: { "zh-Hant": "快樂的化身 · 足球精靈", "zh-Hans": "快乐的化身 · 足球精灵", "en": "Joy of Football · Elf" },
-                img: "Ronaldinho.png",
                 pos: { "zh-Hant": "進攻核心", "zh-Hans": "进攻核心", "en": "Playmaker" },
                 val: { "zh-Hant": "想像力萬歲，足球是派對", "zh-Hans": "想象力万岁，足球是派对", "en": "Long Live Imagination" },
+                img: "Ronaldinho.png",
                 why: { 
                     "zh-Hant": "小羅在賽場上那標誌性的微笑與近乎魔幻、毫無常規、自由奔放的桑巴腳法，是 ENFP 靈感與快樂靈魂的具象化。",
                     "zh-Hans": "小罗在赛场上那标志性的微笑与近乎魔幻、毫无常规、自由奔放的桑巴脚法，是 ENFP 灵感与快乐灵魂的具象化。",
@@ -642,35 +788,43 @@
                 },
                 traits: {
                     "zh-Hant": "【內在動機與大局觀】：\n你是自帶「彩虹特效」的快樂靈魂。你對世界展現出的每一種創意可能性都感到無比興奮。對你而言，足球與生命不是死板競爭的修羅場，而是一場可以盡情施展想像力的華麗舞會。\n\n【社交模式與心靈世界】：\n你熱情、樂觀，具備極強的情感感染力。你討厭任何枯燥、沈重與死板教條的束縛，在社交中能迅速溫暖每個人。你的靈感來源於自由的探索與跟他人真心、快樂的情感連結。\n\n【面對壓力的轉化機制】：\n在高度壓迫或要求「標準答案」的環境中，你的光芒可能會沈睡。但只要給予你一絲自由，你就能把千斤重擔化為快樂起舞的勇氣。你會用微笑與近乎藝術性的即興想像，將絕境轉化為一場大狂歡。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是自带“彩虹特效”的快乐灵魂。你对世界展现出的每一种创意可能性都感到无比兴奋。对你而言，足球与生命不是死板竞争的修罗场，而是一场可以尽情施展想象力的华丽舞会。\n\n【社交模式与心灵世界】：\n你热情、乐观，具备极强的情感感染力。你讨厌任何枯燥、沉重与死板教条的束缚，在社交中能迅速温暖每个人。你的灵感来源于自由的探索与跟他人真心、快乐的情感连接。\n\n【面对压力的转化机制】：\n在高度压迫或要求“标准答案”的环境中，你的光芒可能会沉睡。但只要给予你一丝自由，你就能把千斤重担化为快乐起舞的勇气。你会用微笑与近乎艺术性的即兴想象，将绝境转化为一场大狂欢。",
+                    "zh-Hans": "【内在动机与大局观】：\n你是自带“彩虹特效”的快乐灵感。对你而言，手稿与生命不是死板竞争的修罗场，而是一场可以尽情施展想象力的华丽舞会。\n\n【社交模式与心灵世界】：\n你热情、乐观，具备极强的情感感染力。你讨厌任何枯燥、沉重与死板教条的束缚，在社交中能迅速温暖每个人。你的灵感来源于自由的探索与跟他人真心、快乐的情感连接。\n\n【面对压力的转化机制】：\n在高度压迫或要求“标准答案”的环境中，你的光芒可能会沉睡。但只要 give 一丝自由，你就能把千斤重担化为快乐起舞的勇气。你会用微笑与近乎艺术性的即兴想象，将绝境转化为一场大狂欢。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are a joyful soul with a natural 'Rainbow Glow'. Every single creative option in life excites you. To you, life is a dance floor to display imagination rather than a brutal survival cage.\n\n★ [Social & Inner World]:\nYou are warm, optimistic, with strong emotional infectiousness. You despise dull dogmas, easily warming up the room. Your inspiration comes from free exploration and joyful connection with others.\n\n★ [Handling Pressure]:\nIn highly restrictive environments, your light may sleep. But given a sliver of freedom, you lift heavy weights with a smile and turn critical situations into a massive carnival of art."
                 },
-                advice: { "zh-Hant": "給你的靈感地圖加上一點點「規律與執行」，你的快樂魔法將能在這個現實世界綻放得更久、更堅固。", "zh-Hans": "给你的灵感地图加上一点点“规律与执行”，你的快乐魔法将能在现实世界绽放得更久、更坚固。", "en": "Add some structure and routine to your map of dreams; your joy magic will shine longer and stronger in the physical world." }
+                advice: {
+                    "zh-Hant": "給你的靈感地圖加上一點點「規律與執行」，你的快樂魔法將能在這個現實世界綻放得更久、更堅固。",
+                    "zh-Hans": "给你的灵感地图加上一点点“规律与执行”，你的快乐魔法将能在现实世界绽放得更久、更坚固。",
+                    "en": "Add some structure and routine to your map of dreams; your joy magic will shine longer and stronger in the physical world."
+                }
             },
             "ESTP": {
                 name: { "zh-Hant": "蘇亞雷斯", "zh-Hans": "苏亚雷斯", "en": "Suarez" },
                 role: { "zh-Hant": "生存的獵手 · 野性戰士", "zh-Hans": "生存的猎手 · 野性战士", "en": "Survival Predator" },
-                img: "LuisSuarez.png",
                 pos: { "zh-Hant": "致命前鋒", "zh-Hans": "致命前锋", "en": "Lethal Forward" },
                 val: { "zh-Hant": "用盡一切手段去生存與獲勝", "zh-Hans": "用尽一切手段去生存与获胜", "en": "Win & Survive" },
+                img: "LuisSuarez.png",
                 why: { 
                     "zh-Hant": "蘇亞雷斯在賽場上那種極限爆發力、野獸般的進球嗅覺以及不惜代價捍衛勝利的野性，是 ESTP 生存直覺的體現。",
                     "zh-Hans": "苏亚雷斯在赛场上那种极限爆发力、野兽般的进球嗅觉以及不惜代价捍卫胜利的野性，是 ESTP 生存直觉的体现。",
                     "en": "Suarez's explosive output, animalistic nose for goals, and wild passion to secure wins at all costs perfectly capture ESTP's survival instinct."
                 },
                 traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是現實世界中最頂尖的「生存獵手」。你活在當下，對周遭物理環境的微小變化有著野獸般的直覺。你熱愛即時挑戰，不屑空談戰術，深信在對抗與實戰中征服一切才是唯一的硬道理。\n\n【社交模式與心靈世界】：\n你務實、爽朗，充滿了自信與直接的爆發力。你討厭拐彎抹角，喜歡最直觀的情感與力量碰撞。在隊友眼裡你有些狡黠與野性，但也是壓力關頭最能靠得住、用肉身拼下血路的硬漢。\n\n【面對壓力的轉化機制】：\n在面臨極高壓、背水一戰的關頭，你潛在的生存直覺會完全爆發。你不會理會規則的束縛，而是會動用每一根神經、甚至是一些游走在邊緣的野性本能去咬住勝利，為了生存，你能適應任何殘酷環境。",
+                    "zh-Hant": "【內在動機與大局觀】：\n你是現實世界中最頂尖的「生存獵手」。你活在當下，對周遭物理環境的微小變化有著野獸般的直覺。你熱愛即時挑戰，不屑空談戰術，深信在對抗與實戰中局勢征服一切才是唯一的硬道理。\n\n【社交模式與心靈世界】：\n你務實、爽朗，充滿了自信與直接的爆發力。你討厭拐彎抹角，喜歡最直觀的情感與力量碰撞。在隊友眼裡你有些狡黠與野性，但也是壓力關頭最能靠得住、用肉身拼下血路的硬漢。\n\n【面對壓力的轉化機制】：\n在面臨極高壓、背水一戰的關頭，你潛在的生存直覺會完全爆發。你不會理會規則的束縛，而是會動用每一根神經、甚至是一些游走在邊緣的野性本能去咬住勝利，為了生存，你能適應任何殘酷環境。",
                     "zh-Hans": "【内在动机与大局观】：\n你是现实世界中最顶尖的“生存猎手”。你活在当下，对周遭物理环境的微小变化有着野兽般的直觉。你热爱即时挑战，不屑空谈战术，深信在对抗与实战中征服一切才是唯一的硬道理。\n\n【社交模式与心灵世界】：\n你务实、爽朗，充满了自信与直接的爆发力。你讨厌拐弯抹角，喜欢最直观的情感与力量碰撞。在队友眼里你有些狡黠与野性，但也是压力关头最能靠得住、用肉身拼下血路的硬汉。\n\n【面对压力的转化机制】：\n在面临极高压、背水一战的关头，你潜在的生存直觉会完全爆发。你不会理会规则的束缚，而是会动用每一根神经、甚至是一些游走在边缘的野性本能去咬住胜利，为了生存，你能适应任何残酷环境。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are the ultimate 'Survival Predator'. You live in the moment with a beastly intuition for physical changes around you. You prefer direct physical battles over talk, conquering directly on the pitch.\n\n★ [Social & Inner World]:\nYou are practical, vibrant, with straightforward explosive power. Disliking mind games, you prefer honest, direct interaction. Peers find you wild, but also the toughest shield in crisis.\n\n★ [Handling Pressure]:\nWhen cornered, your survival switches trigger completely. Ignoring soft rules, you sharpen every fiber of your muscle and engage primal instincts to seize victory, surviving any brutal terrain."
                 },
-                advice: { "zh-Hant": "雖然長期規劃與防線思維顯得無趣，但適當留心能讓你在追求終極勝利時，規避許多不必要的風險。", "zh-Hans": "虽然长期规划与防线思维显得无趣，但适当留心能让你在追求终极胜利时，规避许多不必要的风险。", "en": "Though long-term plans feel boring, a little foresight helps avoid unnecessary risks during your quest for ultimate victory." }
+                advice: {
+                    "zh-Hant": "雖然長期規劃與防線思維顯得無趣，但適當留心能讓你在追求終極勝利時，規避許多不必要的風險。",
+                    "zh-Hans": "虽然长期规划与防线思维显得无趣，但适当留心能让你在追求终极胜利时，规避许多不必要的风险。",
+                    "en": "Though long-term plans feel boring, a little foresight helps avoid unnecessary risks during your quest for ultimate victory."
+                }
             },
             "ESFP": {
                 name: { "zh-Hant": "普巴", "zh-Hans": "博格巴", "en": "Pogba" },
                 role: { "zh-Hant": "聚光燈的主宰 · 頂級表演家", "zh-Hans": "聚光灯的主宰 · 顶级表演家", "en": "Master of Spotlight · Performer" },
-                img: "PaulPogba.png",
                 pos: { "zh-Hant": "全能中場", "zh-Hans": "全能中场", "en": "Box-to-Box Midfielder" },
                 val: { "zh-Hant": "在聚光燈下綻放最真實的自我", "zh-Hans": "在聚光灯下绽放最真实的自我", "en": "Blooming in Spotlight" },
+                img: "PaulPogba.png",
                 why: { 
                     "zh-Hant": "普巴在場上華麗的球風、對個人髮型與潮流表達的偏愛以及將足球當作舞台的自信，完美詮釋了 ESFP 表演家的天性。",
                     "zh-Hans": "博格巴在场上华丽的球风、对个人发型与潮流表达的偏爱以及将足球当作舞台的自信，完美诠释了 ESFP 表演家的天性。",
@@ -681,43 +835,11 @@
                     "zh-Hans": "【内在动机与大局观】：\n你是绿茵场上天生的“大艺术家”。你散发着澎湃的活力，渴望在聚光灯下毫无保留地展现自己。你追求将足球与时尚、舞蹈与狂欢完美融合，对你而言，不够精彩的成功是索然无味的。\n\n【社交模式与心灵世界】：\n你热情、感性、热爱社交。你有一种天然的魅力，能成为所有人的情感核心。你喜欢新奇刺激的事物，擅长将繁琐枯燥的任务转化为极富趣味的享受。你活在赞美与掌声的正面反馈中。\n\n【面对压力的转化机制】：\n在遭受恶意中伤或死板限制时，你可能会因为太在意他人的目光而感到失落与沮丧。但只要给予你一丝信任与欢呼，你的斗志就会瞬间回归。你会在压力之下展现最华丽的即兴，用艺术震惊全场。",
                     "en": "★ [Internal Motivation & Vision]:\nYou are a natural 'Megastar' on the field. Radiant and energetic, you crave showing your raw expression under the spot. You seek to merge football with fashion, finding victory without style empty.\n\n★ [Social & Inner World]:\nYou are warm, emotional, and social. Your charm makes you the soul of gatherings. Seeking novelty, you convert heavy duties into fun. You thrive on praise and feedback.\n\n★ [Handling Pressure]:\nUnder malicious talk or strict rules, you can feel heavily deflated and lost. But a single spark of cheer brings you back in full fire, displaying breathtaking improvisation to shock the world."
                 },
-                advice: { "zh-Hant": "在享受舞台光芒的同時，學會深度的內省與安靜，會讓你的人格厚度更上層樓，散發更無可動搖的領袖說服力。", "zh-Hans": "在享受舞台光芒的同时，学会深度的内省与安静，会让你的人格厚度更上层楼，散发更无可动摇的领袖说服力。", "en": "While enjoying the spotlights, practice quiet reflection; it deepens your character, granting you unshakeable leadership." }
-            },
-            "ENTJ": {
-                name: { "zh-Hant": "伊巴謙莫域", "zh-Hans": "伊布拉希莫维奇", "en": "Ibrahimovic" },
-                role: { "zh-Hant": "戰場的主宰 · 鐵腕統帥", "zh-Hans": "战场的主宰 · 铁腕统帅", "en": "Commander of Battlefield" },
-                img: "ZlatanIbrahimovic.png",
-                pos: { "zh-Hant": "禁區霸主", "zh-Hans": "禁区霸主", "en": "Sovereign Forward" },
-                val: { "zh-Hant": "用實力制定秩序", "zh-Hans": "用实力制定秩序", "en": "Set Order via Power" },
-                why: { 
-                    "zh-Hant": "伊巴謙莫域那種超越世俗的自信、強烈的掌控欲以及自稱「上帝與獅子」的霸氣，是 ENTJ 指揮官人格的具象。",
-                    "zh-Hans": "伊布拉希莫维奇那种超越世俗的自信、强烈的掌控欲以及自称“上帝与狮子”的霸气，是 ENTJ 指挥官人格的具象。",
-                    "en": "Ibrahimovic's absolute confidence, need for control, and self-proclamation as a 'Lion or God' perfectly reflect the ENTJ Commander personality."
-                },
-                traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是天生的「主宰者」。你絕不允許自己落入平庸，對你而言，生活就是一場關於力量、效率與征服的巨型棋局。你具備極強的宏觀決斷力，善於將紛亂的隊伍擰成一股高效率前進的戰線。\n\n【社交模式與心靈世界】：\n你自信、果敢、直擊事物本質。你熱愛挑戰權威，因為你骨子裡就認為自己才是規則的起草人。你待人高效直接，不能容忍拖泥帶水的軟弱與藉口。你用絕對的強大與實力，建立不容動搖的個人威望。\n\n【面對壓力的轉化機制】：\n極端的高壓與絕境只會成為喚醒你野獸直覺的信號。你不會有半分猶豫，而是會用一種近乎「狂妄」的絕對意志強行主導局面，調動身邊一切可以動用的資源去打破僵局，用勝利奠定你的帝國秩序。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是天生的“主宰者”。你绝不允许自己落入平庸，对你而言，生活就是一场关于力量、效率与征服的巨型棋局。你具备极强的宏观决断力，善于将纷乱的队伍拧成一股高效率前进的战线。\n\n【社交模式与心灵世界】：\n你自信、果敢、直击事物本质。你热爱挑战权威，因为你骨子里就认为自己才是规则的起草人。你待人高效直接，不能容忍拖泥带水的软弱与借口。你用绝对的强大与实力，建立不容动摇的个人威望。\n\n【面对压力的转化机制】：\n极端的高压与绝境只会成为唤醒你野兽直觉的信号。你不会有半分犹豫，而是会用一种近乎“狂妄”的绝对意志强行主导局面，调动身边一切可以动用的资源去打破僵局，用胜利奠定你的帝国秩序。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou are a born 'Ruler'. You refuse to settle for mediocrity; life is a giant game of conquest, power, and efficiency. You possess sharp strategic logic, uniting teams into fatal execution lines.\n\n★ [Social & Inner World]:\nYou are bold, decisive, and hit the core directly. You enjoy challenging authority, believing you were born to set the rules. Demanding efficiency, you tolerate no soft excuses, building deep respect via sheer power.\n\n★ [Handling Pressure]:\nSevere pressure acts only as an alarm to wake up your inner predator. Displaying no hesitation, you take absolute charge with wild confidence, aligning resources to destroy the deadlock and build order."
-                },
-                advice: { "zh-Hant": "獅子在咆哮之餘，偶爾流露出的溫和與退讓，非但不會削弱你的力量，反而能贏得靈魂深處的追隨。", "zh-Hans": "狮子在咆哮之余，偶尔流露出的温和与退让，非但不会削弱你的力量，反而能赢得灵魂深处的追随。", "en": "The lion's occasional softness does not diminish your power; it wins deeper and more spiritual loyalty from your pack." }
-            },
-            "INFJ-K": {
-                name: { "zh-Hant": "卡卡", "zh-Hans": "卡卡", "en": "Kaka" },
-                role: { "zh-Hant": "虔誠的騎士 · 理想主義者", "zh-Hans": "虔诚的骑士 · 理想主义者", "en": "Devout Knight · Idealist" },
-                img: "Kaka.png",
-                pos: { "zh-Hant": "影子前鋒", "zh-Hans": "影子前锋", "en": "Shadow Striker" },
-                val: { "zh-Hant": "純潔的熱愛與救贖的信仰", "zh-Hans": "纯洁的热爱与救赎的信仰", "en": "Pure Faith & Salvation" },
-                why: { 
-                    "zh-Hant": "卡卡那如追風少年般純潔優雅、虔誠且將生命與足球奉獻給信仰的風骨，是 INFJ 理想主義與道德救贖直覺的縮影。",
-                    "zh-Hans": "卡卡那如追风少年般纯洁优雅、虔诚且将生命与足球奉献给信仰的风骨，是 INFJ 理想主义与道德救赎直觉的缩影。",
-                    "en": "Kaka's wind-like pure speed, devout nature, and dedication to faith and football are the ultimate reflection of INFJ's moral idealism."
-                },
-                traits: {
-                    "zh-Hant": "【內在動機與大局觀】：\n你是一個「追尋靈魂純度」的理想主義者。你內心擁有一套無瑕的價值標準，你踢出的每一步、做出的每個選擇，不僅是為了世俗的成功，更是為了實踐心中的「信仰與善良」。\n\n【社交模式與心靈世界】：\n你溫柔、謙和、極具同理心，散發著一種超越塵世喧囂的純淨美感。你對人性的真誠有著極高的追求，無法忍受算計與虛偽。你默默扮演著心靈守護者的角色，給予身邊人強大的精神支撐。\n\n【面對壓力的轉化機制】：\n在世俗的功利與混亂的高壓中，你不會被同化，反而會讓你的信念更加閃耀。壓力對你而言是靈魂的洗禮，你能在黑暗與混亂中堅守燈塔般的光芒，用超越常人的意志，跑出救贖一切的優雅軌跡。",
-                    "zh-Hans": "【内在动机与大局观】：\n你是一个“追寻灵魂纯度”的理想主义者。你内心拥有一套无瑕的价值标准，你踢出的每一步、做出的每个选择，不仅是为了世俗的成功，更是为了实践心中的“信仰与善良”。\n\n【社交模式与心灵世界】：\n你温柔、谦和、极具同理心，散发着一种超越尘世喧嚣的纯净美感。你对人性的真诚有着极高的追求，无法忍受算计与虚伪。你默默扮演着心灵守护者的角色，给予身边人精神支撑。\n\n【面对压力的转化机制】：\n在世俗的功利与混乱的高压中，你不会被同化，反而会让你的信念更加闪耀。压力对你而言是灵魂的洗礼，内心的灯塔永远明亮，用超越常人的意志，跑出救赎一切的优雅轨迹。",
-                    "en": "★ [Internal Motivation & Vision]:\nYou are an idealist chasing 'purity of soul'. You hold a flawless moral compass, making moves not just for worldly acclaim, but to fulfill inner faith and goodness.\n\n★ [Social & Inner World]:\nYou are gentle, highly empathetic, radiating a quiet grace that transcends worldly noise. Craving pure, honest relationships, you act as a silent guardian, providing vast spiritual shielding.\n\n★ [Handling Pressure]:\nAmidst worldly chaos, you refuse to be corrupted; instead, your faith shines brighter. Pressure is a baptism of the soul—your inner lighthouse remains bright, allowing you to run a saving grace."
-                },
-                advice: { "zh-Hant": "保持你的善良與光芒，這個複雜混沌的世界，需要你這道溫柔且不妥協的光指引方向。", "zh-Hans": "保持你的善良与光芒，这个复杂混沌的世界，需要你这道温柔且不妥协的光指引方向。", "en": "Hold your goodness and light; this complex world needs your gentle, uncompromising guidance." }
+                advice: {
+                    "zh-Hant": "在享受舞台光芒的同時，學會深度的內省與安靜，會讓你的人格厚度更上層樓，散發更無可動搖的領袖說服力。",
+                    "zh-Hans": "在享受舞台光芒的同时，学会深度的内省与安静，会让你的人格厚度更上层楼，散发更无可动摇的领袖说服力。",
+                    "en": "While enjoying the spotlights, practice quiet reflection; it deepens your character, granting you unshakeable leadership."
+                }
             }
         };
 
@@ -770,18 +892,35 @@
                 btn.innerText = opt;
                 btn.onclick = () => {
                     answers[currentIdx] = i;
-                    if(currentIdx < 19) {
-                        currentIdx++;
-                        setTimeout(renderQuestion, 200);
-                    } else {
-                        showResult();
-                    }
+                    // 自動且有微弱緩衝地進入下一題，體驗更加順滑
+                    setTimeout(() => {
+                        if(currentIdx < 19) {
+                            currentIdx++;
+                            renderQuestion();
+                        } else {
+                            showResult();
+                        }
+                    }, 220);
                 };
                 container.appendChild(btn);
             });
 
             document.getElementById('btn-back').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
             document.getElementById('btn-back').innerText = t.back;
+            document.getElementById('btn-next').innerText = currentIdx === 19 ? "查看結果" : "下一題 →";
+            document.getElementById('btn-next').disabled = answers[currentIdx] === null;
+            document.getElementById('btn-next').className = `flex-1 py-4 font-bold rounded-xl ${answers[currentIdx] === null ? 'bg-slate-100 text-slate-300 pointer-events-none' : 'bg-blue-600 text-white'}`;
+        }
+
+        function goNext() {
+            if (answers[currentIdx] !== null) {
+                if (currentIdx < 19) {
+                    currentIdx++;
+                    renderQuestion();
+                } else {
+                    showResult();
+                }
+            }
         }
 
         function goBack() {
@@ -791,18 +930,17 @@
             }
         }
 
-        let mbtiResult = "";
         function showResult() {
-            let counts = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
-            answers.forEach((ansIdx, qIdx) => {
-                const trait = questions[qIdx].weight[ansIdx];
-                counts[trait]++;
+            let score = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+            answers.forEach((ans, idx) => {
+                const trait = questions[idx].weight[ans];
+                score[trait]++;
             });
 
-            mbtiResult = (counts.E >= counts.I ? 'E' : 'I') +
-                         (counts.S >= counts.N ? 'S' : 'N') +
-                         (counts.T >= counts.F ? 'T' : 'F') +
-                         (counts.J >= counts.P ? 'J' : 'P');
+            mbtiResult = (score.E >= score.I ? 'E' : 'I') +
+                         (score.S >= score.N ? 'S' : 'N') +
+                         (score.T >= score.F ? 'T' : 'F') +
+                         (score.J >= score.P ? 'J' : 'P');
 
             updateResultDisplay();
             document.getElementById('screen-quiz').classList.add('hidden');
@@ -813,13 +951,9 @@
         function updateResultDisplay() {
             if(!mbtiResult) return;
             
-            // 隨機微調派路 (INFJ) 或卡卡 (INFJ-K)
-            let key = mbtiResult;
-            if (mbtiResult === "INFJ") {
-                key = Math.random() > 0.5 ? "INFJ" : "INFJ-K";
-            }
-
+            const key = mbtiResult;
             const data = starsData[key] || starsData[mbtiResult] || starsData["ISFJ"];
+            
             document.getElementById('res-mbti').innerText = mbtiResult;
             document.getElementById('res-title').innerText = data.name[currentLang];
             document.getElementById('res-role').innerText = data.role[currentLang];
@@ -829,26 +963,58 @@
             document.getElementById('res-val').innerText = data.val[currentLang];
             document.getElementById('res-advice').innerText = data.advice[currentLang];
             
-            // 已校對！尼馬檔名吻合 Neymar.png
+            // 完美匹配！去背圖無縫顯示
             document.getElementById('res-img').style.backgroundImage = `url('https://raw.githubusercontent.com/shanezzz1031/img/refs/heads/main/png8/${data.img}')`;
         }
 
-        function saveResult(e) {
-            const area = document.getElementById('capture-area');
-            const btn = e.target;
-            const originalText = btn.innerText;
-            btn.innerText = i18n[currentLang].generating;
-            btn.disabled = true;
+function saveResult(e) {
+    const area = document.getElementById('capture-area');
+    const btn = e.target;
+    const originalText = btn.innerText;
 
-            html2canvas(area, { useCORS: true, scale: 2 }).then(canvas => {
-                document.getElementById('preview-img').src = canvas.toDataURL('image/png');
-                document.getElementById('save-overlay').style.display = 'flex';
-                btn.innerText = originalText;
-                btn.disabled = false;
-            });
-        }
+    btn.innerText = i18n[currentLang].generating;
+    btn.disabled = true;
 
-        function closePreview() { document.getElementById('save-overlay').style.display = 'none'; }
+    // 1. 強制等待所有圖片資源載入完成，防止圖片缺失導致截圖空白
+    const images = area.querySelectorAll('img');
+    const promises = Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+    });
+
+    // 2. 將畫面滾動至頂端，消除滾動偏移影響
+    window.scrollTo(0, 0);
+
+    Promise.all(promises).then(() => {
+        // 3. 執行渲染
+        html2canvas(area, {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: null,
+            width: area.offsetWidth,
+            height: area.offsetHeight,
+            // 關鍵處理：在渲染瞬間強制重置容器樣式，鎖定座標
+            onclone: (clonedDoc) => {
+                const el = clonedDoc.getElementById('capture-area');
+                el.style.position = 'relative';
+                el.style.transform = 'none'; 
+                el.style.margin = '0 auto';
+                el.style.top = '0';
+                el.style.left = '0';
+            }
+        }).then(canvas => {
+            document.getElementById('preview-img').src = canvas.toDataURL('image/png');
+            document.getElementById('save-overlay').style.display = 'flex';
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    }).catch(err => {
+        console.error("截圖異常:", err);
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
+}		
+		function closePreview() { document.getElementById('save-overlay').style.display = 'none'; }
         
         function resetQuiz() {
             document.getElementById('screen-result').classList.add('hidden');
@@ -859,5 +1025,5 @@
         // 初始化
         changeLang('zh-Hant');
     </script>
-</body>
+// JavaScript Document</body>
 </html>
